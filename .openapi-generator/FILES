@@ -1,5 +1,6 @@
 .gitignore
 api.ts
+api/agentApi.ts
 api/apis.ts
 api/authApi.ts
 api/configurationApi.ts
@@ -12,6 +13,10 @@ git_push.sh
 model/accessTokenCreateRequest.ts
 model/accessTokenCreateResponse.ts
 model/ackResponse.ts
+model/agent.ts
+model/agentCreateRequest.ts
+model/agentListResponse.ts
+model/agentUpdateRequest.ts
 model/attachment.ts
 model/corpus.ts
 model/corpusCreateRequest.ts
@@ -27,6 +32,7 @@ model/documentInitRequest.ts
 model/documentListResponse.ts
 model/documentPreviewUrl.ts
 model/documentPreviewUrls.ts
+model/documentSearchResponse.ts
 model/documentStatus.ts
 model/documentUpdateRequest.ts
 model/modelError.ts
@@ -42,7 +48,9 @@ model/sessionCreateResponse.ts
 model/sessionListResponse.ts
 model/sessionUpdateRequest.ts
 model/usage.ts
+model/usageBucket.ts
 model/usageCount.ts
+model/usageDelta.ts
 model/usageTokens.ts
 model/whoAmI.ts
 package.json

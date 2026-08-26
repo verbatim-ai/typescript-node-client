@@ -1,6 +1,6 @@
 /**
  * Verbatim AI — GenAI Backend API
- * Backend API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform.  ## Concepts  - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication  Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## Conventions  - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -11,23 +11,24 @@
  */
 
 import { RequestFile } from './models';
+import { UsageBucket } from './usageBucket';
 import { UsageCount } from './usageCount';
 import { UsageTokens } from './usageTokens';
 
 /**
-* Aggregated usage metrics over a rolling timeframe. Returned by `GET /v1/usage/all` (organization scope) and `GET /v1/usage/corpus/{corpusId}` (corpus scope).
+* Aggregated usage metrics over a timeframe, with a per-bucket time series. Returned by `GET /v1/usage/all` (organization scope), `GET /v1/usage/user/{userId}` (user scope) and `GET /v1/usage/corpus/{corpusId}` (corpus scope).
 */
 export class Usage {
     /**
-    * Rolling window the metrics are aggregated over.
+    * Bucket size the metrics are aggregated by. `Day` yields 30 buckets, `Week` 12, `Month` 12 and `Year` 5.
     */
     'timeframe': Usage.TimeframeEnum;
     /**
-    * Inclusive start of the rolling window (ISO-8601, UTC).
+    * Inclusive start of the range (ISO-8601, UTC). Start of the oldest bucket, aligned to a calendar boundary.
     */
     'from': Date;
     /**
-    * Exclusive end of the rolling window (ISO-8601, UTC). Equal to `timestamp`.
+    * Exclusive end of the range (ISO-8601, UTC). End of the newest **completed** bucket, i.e. the instant the bucket in progress starts at — never in the future, and always earlier than `timestamp`.
     */
     'to': Date;
     /**
@@ -43,11 +44,11 @@ export class Usage {
     */
     'userId'?: string | null;
     /**
-    * Token usage. At organization scope, sum of `post.token` + `document.token`. At corpus scope, sum of `post.token` only (vectorization tokens are billed at organization level).
+    * Token usage. At organization and user scope, sum of `post.token` + `document.token`. At corpus scope, sum of `post.token` only (vectorization tokens are billed at organization level).
     */
     'tokens': UsageTokens;
     /**
-    * Corpus counts. Populated at organization scope only; `null` at corpus scope.
+    * Corpus counts. Populated at organization scope only; `null` at corpus and user scopes.
     */
     'corpora': UsageCount;
     /**
@@ -63,7 +64,11 @@ export class Usage {
     */
     'storage': UsageCount;
     /**
-    * Server-side timestamp the metrics were computed at (ISO-8601, UTC). Equal to `to`.
+    * Per-bucket breakdown over `[from, to)`, oldest first — 30 daily, 12 weekly, 12 monthly or 5 yearly entries depending on `timeframe`. Contiguous and gapless: a bucket with no activity is present with zeros, and the last entry is the newest **completed** bucket — the one in progress is not reported. The buckets sum to the top-level `created`/`removed`/`inPeriod`.
+    */
+    'series': Array<UsageBucket>;
+    /**
+    * Server-side timestamp the metrics were computed at (ISO-8601, UTC). Falls inside the bucket in progress, which the report excludes — so it is later than `to`.
     */
     'timestamp': Date;
 
@@ -124,6 +129,11 @@ export class Usage {
             "name": "storage",
             "baseName": "storage",
             "type": "UsageCount"
+        },
+        {
+            "name": "series",
+            "baseName": "series",
+            "type": "Array<UsageBucket>"
         },
         {
             "name": "timestamp",

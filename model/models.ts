@@ -3,6 +3,10 @@ import localVarRequest from 'request';
 export * from './accessTokenCreateRequest';
 export * from './accessTokenCreateResponse';
 export * from './ackResponse';
+export * from './agent';
+export * from './agentCreateRequest';
+export * from './agentListResponse';
+export * from './agentUpdateRequest';
 export * from './attachment';
 export * from './corpus';
 export * from './corpusCreateRequest';
@@ -18,6 +22,7 @@ export * from './documentInitRequest';
 export * from './documentListResponse';
 export * from './documentPreviewUrl';
 export * from './documentPreviewUrls';
+export * from './documentSearchResponse';
 export * from './documentStatus';
 export * from './documentUpdateRequest';
 export * from './modelError';
@@ -32,7 +37,9 @@ export * from './sessionCreateResponse';
 export * from './sessionListResponse';
 export * from './sessionUpdateRequest';
 export * from './usage';
+export * from './usageBucket';
 export * from './usageCount';
+export * from './usageDelta';
 export * from './usageTokens';
 export * from './whoAmI';
 
@@ -52,6 +59,10 @@ export type RequestFile = string | Buffer | fs.ReadStream | RequestDetailedFile;
 import { AccessTokenCreateRequest } from './accessTokenCreateRequest';
 import { AccessTokenCreateResponse } from './accessTokenCreateResponse';
 import { AckResponse } from './ackResponse';
+import { Agent } from './agent';
+import { AgentCreateRequest } from './agentCreateRequest';
+import { AgentListResponse } from './agentListResponse';
+import { AgentUpdateRequest } from './agentUpdateRequest';
 import { Attachment } from './attachment';
 import { Corpus } from './corpus';
 import { CorpusCreateRequest } from './corpusCreateRequest';
@@ -67,6 +78,7 @@ import { DocumentInitRequest } from './documentInitRequest';
 import { DocumentListResponse } from './documentListResponse';
 import { DocumentPreviewUrl } from './documentPreviewUrl';
 import { DocumentPreviewUrls } from './documentPreviewUrls';
+import { DocumentSearchResponse } from './documentSearchResponse';
 import { DocumentStatus } from './documentStatus';
 import { DocumentUpdateRequest } from './documentUpdateRequest';
 import { ModelError } from './modelError';
@@ -81,7 +93,9 @@ import { SessionCreateResponse } from './sessionCreateResponse';
 import { SessionListResponse } from './sessionListResponse';
 import { SessionUpdateRequest } from './sessionUpdateRequest';
 import { Usage } from './usage';
+import { UsageBucket } from './usageBucket';
 import { UsageCount } from './usageCount';
+import { UsageDelta } from './usageDelta';
 import { UsageTokens } from './usageTokens';
 import { WhoAmI } from './whoAmI';
 
@@ -98,6 +112,9 @@ let primitives = [
                  ];
 
 let enumsMap: {[index: string]: any} = {
+        "Agent.ThinkingModeEnum": Agent.ThinkingModeEnum,
+        "AgentCreateRequest.ThinkingModeEnum": AgentCreateRequest.ThinkingModeEnum,
+        "AgentUpdateRequest.ThinkingModeEnum": AgentUpdateRequest.ThinkingModeEnum,
         "Document.StatusEnum": Document.StatusEnum,
         "DocumentPreviewUrl.SizeEnum": DocumentPreviewUrl.SizeEnum,
         "DocumentStatus.StatusEnum": DocumentStatus.StatusEnum,
@@ -109,6 +126,10 @@ let typeMap: {[index: string]: any} = {
     "AccessTokenCreateRequest": AccessTokenCreateRequest,
     "AccessTokenCreateResponse": AccessTokenCreateResponse,
     "AckResponse": AckResponse,
+    "Agent": Agent,
+    "AgentCreateRequest": AgentCreateRequest,
+    "AgentListResponse": AgentListResponse,
+    "AgentUpdateRequest": AgentUpdateRequest,
     "Attachment": Attachment,
     "Corpus": Corpus,
     "CorpusCreateRequest": CorpusCreateRequest,
@@ -124,6 +145,7 @@ let typeMap: {[index: string]: any} = {
     "DocumentListResponse": DocumentListResponse,
     "DocumentPreviewUrl": DocumentPreviewUrl,
     "DocumentPreviewUrls": DocumentPreviewUrls,
+    "DocumentSearchResponse": DocumentSearchResponse,
     "DocumentStatus": DocumentStatus,
     "DocumentUpdateRequest": DocumentUpdateRequest,
     "ModelError": ModelError,
@@ -138,7 +160,9 @@ let typeMap: {[index: string]: any} = {
     "SessionListResponse": SessionListResponse,
     "SessionUpdateRequest": SessionUpdateRequest,
     "Usage": Usage,
+    "UsageBucket": UsageBucket,
     "UsageCount": UsageCount,
+    "UsageDelta": UsageDelta,
     "UsageTokens": UsageTokens,
     "WhoAmI": WhoAmI,
 }

@@ -1,6 +1,6 @@
 /**
  * Verbatim AI — GenAI Backend API
- * Backend API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform.  ## Concepts  - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication  Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## Conventions  - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -52,6 +52,14 @@ export class DocumentInitRequest {
     * Arbitrary key/value metadata attached to the document. Stored as JSONB.
     */
     'metadata'?: { [key: string]: any | null; };
+    /**
+    * Free-form labels used to classify the document, so it can later be retrieved with `GET /v1/doc/?tags=…`. Blanks are dropped and duplicates collapsed; at most 32 tags of 64 characters each.
+    */
+    'tags'?: Array<string>;
+    /**
+    * Per-document chunking configuration applied during ingestion. Omit it to use the platform default (`by_title` with `max_characters: 10000` and `combine_text_under_n_chars: 1000`).  Keys map **one-to-one onto the Unstructured chunking options** (<https://docs.unstructured.io/open-source/core-functionality/chunking>), so the names and semantics below are theirs, not ours. Everything is optional — send only what you want to change; the ingestion pipeline fills the rest from its defaults.  `strategy` — `by_title` (default) or `basic`. `by_title` starts a new chunk at each section heading, keeping a chunk within a single section; `basic` ignores structure and fills each chunk to the limit. Use `by_title` for structured documents (reports, contracts, manuals) and `basic` for flat prose or transcripts.  | Key | Type | Default | Strategy | Meaning | |---|---|---|---|---| | `strategy` | string | `by_title` | — | `by_title` or `basic` | | `max_characters` | int | `10000` | both | Hard cap. No chunk ever exceeds it; an element larger than this is text-split. | | `new_after_n_chars` | int | `max_characters` | both | Soft cap. A chunk past this size is not extended further, but is not split either. Set it below `max_characters` for more even chunks. | | `overlap` | int | `0` | both | Characters carried over from the end of the previous chunk as a prefix. Applied **only** to chunks produced by text-splitting an oversized element. | | `overlap_all` | bool | `false` | both | Apply `overlap` between all chunks, not just text-split ones. Improves recall across boundaries at the cost of duplicated text in your embeddings. | | `combine_text_under_n_chars` | int | `max_characters` | `by_title` | Combine consecutive small sections until the chunk reaches this size. `0` disables combining, so every section becomes its own chunk. | | `multipage_sections` | bool | `true` | `by_title` | Allow a section to span a page break. Set `false` to force a new chunk at each page. |  Keys are **not validated** here — the object is stored verbatim and handed to the chunker, so an unknown or malformed key surfaces as a failed ingestion (`status: FAILED`) rather than a `400` on this call. That is deliberate: it lets new Unstructured options be used the day they ship, with no change to this API.  Sizes are in characters, not tokens. Larger chunks give the LLM more context per citation but retrieve less precisely; `max_characters` between 2000 and 10000 is the usual working range. 
+    */
+    'chunk'?: { [key: string]: any | null; };
 
     static discriminator: string | undefined = undefined;
 
@@ -99,6 +107,16 @@ export class DocumentInitRequest {
         {
             "name": "metadata",
             "baseName": "metadata",
+            "type": "{ [key: string]: any | null; }"
+        },
+        {
+            "name": "tags",
+            "baseName": "tags",
+            "type": "Array<string>"
+        },
+        {
+            "name": "chunk",
+            "baseName": "chunk",
             "type": "{ [key: string]: any | null; }"
         }    ];
 

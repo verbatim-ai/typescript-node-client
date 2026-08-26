@@ -1,6 +1,6 @@
 /**
  * Verbatim AI — GenAI Backend API
- * Backend API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform.  ## Concepts  - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication  Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## Conventions  - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -22,6 +22,7 @@ import { DocumentInit } from '../model/documentInit';
 import { DocumentInitRequest } from '../model/documentInitRequest';
 import { DocumentListResponse } from '../model/documentListResponse';
 import { DocumentPreviewUrls } from '../model/documentPreviewUrls';
+import { DocumentSearchResponse } from '../model/documentSearchResponse';
 import { DocumentStatus } from '../model/documentStatus';
 import { DocumentUpdateRequest } from '../model/documentUpdateRequest';
 
@@ -403,7 +404,7 @@ export class DocumentApi {
         });
     }
     /**
-     * Step 1 of the upload flow. Validates inputs, creates a document in `AWAITING_UPLOAD` status, and returns a single-use presigned PUT URL the client must use to push the file bytes directly to S3 — no content flows through this server.  The returned `uploadUrl` is bound to the requested `contentType`: the client MUST send a matching `Content-Type` header in the PUT request, or S3 will reject it.  After the PUT succeeds, call `POST /v1/doc/{id}/commit` to trigger ingestion.  Accepted content types are listed by `GET /v1/doc/accept`. 
+     * Step 1 of the upload flow. Validates inputs, creates a document in `AWAITING_UPLOAD` status, and returns a single-use presigned PUT URL the client must use to push the file bytes directly to S3 — no content flows through this server.  The returned `uploadUrl` is bound to the requested `contentType`: the client MUST send a matching `Content-Type` header in the PUT request, or S3 will reject it.  After the PUT succeeds, call `POST /v1/doc/{id}/commit` to trigger ingestion.  Accepted content types are listed by `GET /v1/doc/accept`.  Two optional fields shape what happens later: `tags` classifies the document so `GET /v1/doc/?tags=…` can find it, and `chunk` overrides how ingestion splits it into embeddable pieces. `chunk` accepts the Unstructured chunking options (`strategy`, `max_characters`, `overlap`, …) — see the request schema for the full key reference, and the *Chunking* examples below for the three shapes that cover most documents. Omit `chunk` and the platform default applies (`by_title`, `max_characters: 10000`, `combine_text_under_n_chars: 1000`). 
      * @summary Initialize a direct-to-storage upload
      * @param documentInitRequest 
      */
@@ -478,14 +479,15 @@ export class DocumentApi {
         });
     }
     /**
-     * Paginate documents stored in a corpus, newest first. Pass the optional `status` filter to narrow down by lifecycle state — e.g. `status=PENDING` returns the ingestion backlog, `status=FAILED` returns documents that need attention.
+     * Paginate documents stored in a corpus. Pass the optional `status` filter to narrow down by lifecycle state — e.g. `status=PENDING` returns the ingestion backlog, `status=FAILED` returns documents that need attention.  Pass `tags` to keep only documents carrying **at least one** of the given tags (repeat the parameter for several: `tags=legal&tags=2026`). Combining `status` and `tags` narrows on both. 
      * @summary List documents
      * @param corpusId ID of the corpus.
      * @param status Optional lifecycle filter. When omitted, documents of all statuses are returned.
-     * @param pageSize Number of items per page.
+     * @param tags Optional tag filter. Returns documents carrying at least one of the given tags. Repeat for multiple values: &#x60;tags&#x3D;legal&amp;tags&#x3D;2026&#x60;. When omitted, tags are ignored.
+     * @param pageSize Number of items per page, 1-100.
      * @param pageIndex Zero-based page index.
      */
-    public async list3 (corpusId: string, status?: 'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED', pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentListResponse;  }> {
+    public async list4 (corpusId: string, status?: 'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED', tags?: Array<string>, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentListResponse;  }> {
         const localVarPath = this.basePath + '/v1/doc/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -500,7 +502,7 @@ export class DocumentApi {
 
         // verify required parameter 'corpusId' is not null or undefined
         if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling list3.');
+            throw new Error('Required parameter corpusId was null or undefined when calling list4.');
         }
 
         if (corpusId !== undefined) {
@@ -509,6 +511,10 @@ export class DocumentApi {
 
         if (status !== undefined) {
             localVarQueryParameters['status'] = ObjectSerializer.serialize(status, "'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'");
+        }
+
+        if (tags !== undefined) {
+            localVarQueryParameters['tags'] = ObjectSerializer.serialize(tags, "Array<string>");
         }
 
         if (pageSize !== undefined) {
@@ -639,12 +645,12 @@ export class DocumentApi {
         });
     }
     /**
-     * Return time-limited presigned URLs for the rendered preview images of the document. One entry is issued per (page, size): by default the first 4 pages × {SMALL, MEDIUM}, so up to 8 entries per call.  Pass `pages` to restrict the response to specific page indices (e.g. `pages=0&pages=2`). When omitted, pages 0–3 are used. Duplicate values are preserved as supplied.  The URLs point at preview images produced asynchronously by the rendering pipeline. No existence check is performed — individual URLs MAY return 404 when fetched if the corresponding (page, size) hasn\'t been generated yet; clients SHOULD fall back per-tile. 
+     * Return time-limited presigned URLs for the rendered preview images of the document.  `pages` is **required** and selects the zero-based page indices to issue URLs for: at least one, at most 10 per request — `400` otherwise. Repeat the parameter for several values (`pages=0&pages=2`) or send them comma-separated (`pages=0,2`). Duplicates are preserved as supplied and count towards the limit. Paginate over a long document with several calls rather than asking for every page at once.  Every index must address a page of *that* document: negatives are rejected, and so is anything at or past its page count once that count is known (`nbPages` from `GET /v1/doc/{id}`, `0` while the rendering pipeline has not reported it).  One entry is issued per (page, size) over {SMALL, MEDIUM}, so a call returns `2 × pages` entries — at most 20.  The URLs point at preview images produced asynchronously by the rendering pipeline. No existence check is performed — individual URLs MAY return 404 when fetched if the corresponding (page, size) hasn\'t been generated yet; clients SHOULD fall back per-tile. 
      * @summary Get presigned preview URLs
      * @param id ID of the document.
-     * @param pages Page indices to include. When omitted, pages 0–3 are returned. Repeat for multiple values: &#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;.
+     * @param pages Zero-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document\&#39;s page range. Repeat for multiple values: &#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;.
      */
-    public async previewUrls1 (id: string, pages?: Array<number>, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentPreviewUrls;  }> {
+    public async previewUrls1 (id: string, pages: Array<number>, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentPreviewUrls;  }> {
         const localVarPath = this.basePath + '/v1/doc/{id}/preview-urls'
             .replace('{id}', encodeURIComponent(String(id)));
         let localVarQueryParameters: any = {};
@@ -661,6 +667,11 @@ export class DocumentApi {
         // verify required parameter 'id' is not null or undefined
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling previewUrls1.');
+        }
+
+        // verify required parameter 'pages' is not null or undefined
+        if (pages === null || pages === undefined) {
+            throw new Error('Required parameter pages was null or undefined when calling previewUrls1.');
         }
 
         if (pages !== undefined) {
@@ -719,7 +730,7 @@ export class DocumentApi {
         });
     }
     /**
-     * Replace the **content** of an existing document while keeping its identity: same `id`, same `filename`, `userId`, `provider`, `lang`, `metadata` and source dates. Use `PATCH /v1/doc/{id}` to change those attributes — this endpoint only touches the file behind them.  The document must be in `READY` or `FAILED` status; any other status is rejected with `409`, since there is either nothing ingested yet or an ingestion in flight.  Everything derived from the previous content is dropped: its embeddings, its summary, and the counters filled in by ingestion (`size`, `tokens`, `nbWords`). The document moves back to `AWAITING_UPLOAD` and the response carries a fresh presigned PUT URL — the same payload as `POST /v1/doc/init`. From there the flow is unchanged: PUT the new bytes, then call `POST /v1/doc/{id}/commit`.  Two things to be aware of:  - Posts that cited this document **lose their attachments to it**, because the   citations point at the embeddings being deleted. Answers already returned to   users are not modified. - The previously uploaded file **stays in storage** until your PUT overwrites it.   Committing without uploading first therefore re-ingests the old content. 
+     * Replace the **content** of an existing document while keeping its identity: same `id`, same `filename`, `userId`, `provider`, `lang`, `metadata`, `tags`, `chunk` and source dates. Use `PATCH /v1/doc/{id}` to change those attributes — this endpoint only touches the file behind them.  The document must be in `READY` or `FAILED` status; any other status is rejected with `409`, since there is either nothing ingested yet or an ingestion in flight.  Everything derived from the previous content is dropped: its embeddings, its summary, and the counters filled in by ingestion (`size`, `tokens`, `nbWords`). The document moves back to `AWAITING_UPLOAD` and the response carries a fresh presigned PUT URL — the same payload as `POST /v1/doc/init`. From there the flow is unchanged: PUT the new bytes, then call `POST /v1/doc/{id}/commit`.  Two things to be aware of:  - Posts that cited this document **lose their attachments to it**, because the   citations point at the embeddings being deleted. Answers already returned to   users are not modified. - The previously uploaded file **stays in storage** until your PUT overwrites it.   Committing without uploading first therefore re-ingests the old content. 
      * @summary Re-initialize a document for a new upload
      * @param id ID of the document whose content is being replaced.
      */
@@ -784,6 +795,159 @@ export class DocumentApi {
                     } else {
                         if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
                             body = ObjectSerializer.deserialize(body, "DocumentInit");
+                            resolve({ response: response, body: body });
+                        } else {
+                            reject(new HttpError(response, body, response.statusCode));
+                        }
+                    }
+                });
+            });
+        });
+    }
+    /**
+     * Find documents in a corpus by filename, tags, lifecycle status, content type, language, provider or ingestion date, sorted the way you need them.  Every filter is optional and they **narrow together**: a request carrying none of them returns the whole corpus, one carrying several returns only the documents matching all of them. For a plain corpus listing, `GET /v1/doc/` is the simpler endpoint — this one is for finding a document you cannot scroll to.  ### Filename — `q`  Case-insensitive, and **anchored at the start** of the filename: `q=annual` finds `Annual-Report-2025.pdf`, `q=report` does not. Put a `*` anywhere to match elsewhere — `q=*report` searches any position, `q=*report*` a substring, `q=2025-*.pdf` a name that starts with `2025-` and ends in `.pdf`.  The default is anchored because that is the shape the index can serve: an anchored pattern is a range scan, a leading `*` is a filter over the corpus. Both are correct, the first is cheaper — prefer it when your client knows how the filename begins.  `%` and `_` carry no special meaning here: they match themselves.  ### Tags — `tags`, `tagsMatch`  Repeat the parameter for several tags (`tags=legal&tags=2026`). By default (`tagsMatch=ANY`) a document matches when it carries **at least one** of them, which is what `GET /v1/doc/?tags=…` does; `tagsMatch=ALL` requires **every** one of them, extra tags on the document being fine.  ### Status — `status`  Repeatable as well, and any of the listed states matches: `status=PENDING&status=FAILED` returns everything that is not ingested yet or needs attention.  ### Content type — `contentType`  Repeatable too, and any of the listed types matches: `contentType=application/pdf&contentType=text/plain`. Values are taken as they come — nothing is checked against `GET /v1/doc/accept`, so a type the platform does not ingest is not an error, it simply matches no document.  ### Size — `minSize`, `maxSize`  A range on the stored size in bytes, **inclusive at both ends** and each bound independent: `minSize=1048576` alone is \"at least 1 MB\", `maxSize` alone \"at most\", and `minSize=maxSize=N` the documents of exactly that many bytes. `minSize` above `maxSize` is refused with `400` rather than answering an empty page.  A document only has a size once its upload is committed, so setting either bound also excludes everything still `AWAITING_UPLOAD` — the same documents `sort=SIZE` pushes to the end of the result.  ### Dates — `createdAfter`, `createdBefore`  A half-open window on the ingestion date: `createdAfter` is inclusive, `createdBefore` exclusive, so consecutive windows tile the timeline without returning a document twice. Supplying `createdAfter` at or after `createdBefore` is refused with `400` rather than answering an empty page.  ### Ordering and paging  `sort` defaults to `CREATED_AT` and `order` to `DESC` — newest first. The ordering is closed by the document id, so walking `pageIndex` never shows the same document twice nor skips one, even when many documents share a sort key. Documents whose `size` is not known yet sort last whatever the direction.  `total` counts every match across all pages, not just the ones returned here.  ### Examples  * `?corpusId=…&q=annual-report` — every document whose name starts with it * `?corpusId=…&q=*report*` — anywhere in the name, at the cost of a scan * `?corpusId=…&q=2025-*.pdf` — starts with `2025-`, ends in `.pdf` * `?corpusId=…&status=FAILED&status=PENDING&sort=UPDATED_AT&order=ASC` — the   ingestion backlog, longest-waiting first * `?corpusId=…&tags=legal&tags=2026&tagsMatch=ALL` — documents carrying both tags * `?corpusId=…&contentType=application/pdf&createdAfter=2026-07-01T00:00:00Z&createdBefore=2026-10-01T00:00:00Z&sort=SIZE&order=DESC`   — last quarter\'s PDFs, biggest first * `?corpusId=…&contentType=application/pdf&contentType=text/plain&minSize=1048576`   — PDFs and plain text over 1 MB * `?corpusId=…&maxSize=0` — documents that were uploaded empty 
+     * @summary Search documents
+     * @param corpusId ID of the corpus to search.
+     * @param q Filename pattern, case-insensitive and anchored at the start of the name: &#x60;annual&#x60; matches &#x60;Annual-Report-2025.pdf&#x60;, &#x60;report&#x60; does not. Add &#x60;*&#x60; anywhere to match elsewhere (&#x60;*report*&#x60;), at the cost of a scan over the corpus. &#x60;%&#x60; and &#x60;_&#x60; match themselves. Blank or omitted, filenames are not filtered.
+     * @param tags Tag filter. Repeat for multiple values: &#x60;tags&#x3D;legal&amp;tags&#x3D;2026&#x60;. When omitted, tags are ignored.
+     * @param tagsMatch How &#x60;tags&#x60; combine: &#x60;ANY&#x60; keeps documents carrying at least one of them, &#x60;ALL&#x60; only those carrying every one. Ignored without &#x60;tags&#x60;.
+     * @param status Lifecycle filter. Repeat for several: &#x60;status&#x3D;PENDING&amp;status&#x3D;FAILED&#x60; matches either. When omitted, documents of all statuses are returned.
+     * @param contentType MIME type filter. Repeat for several: &#x60;contentType&#x3D;application/pdf&amp;contentType&#x3D;text/plain&#x60; matches either. Values are not checked against &#x60;GET /v1/doc/accept&#x60; — an unsupported one simply matches nothing. When omitted, content types are not filtered.
+     * @param lang Exact ISO-639 language code of the document.
+     * @param provider Exact provider identifier, as supplied at upload time.
+     * @param createdAfter Keep documents ingested at or after this instant (ISO-8601, inclusive).
+     * @param createdBefore Keep documents ingested strictly before this instant (ISO-8601, exclusive).
+     * @param minSize Keep documents of at least this many bytes (inclusive). Documents still awaiting upload have no size and drop out.
+     * @param maxSize Keep documents of at most this many bytes (inclusive).
+     * @param sort Column to sort on. Defaults to &#x60;CREATED_AT&#x60;.
+     * @param order Sort direction. Defaults to &#x60;DESC&#x60; — newest, largest or alphabetically last first.
+     * @param pageSize Number of items per page, 1-100.
+     * @param pageIndex Zero-based page index.
+     */
+    public async search (corpusId: string, q?: string, tags?: Array<string>, tagsMatch?: 'ANY' | 'ALL', status?: Array<'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'>, contentType?: Array<string>, lang?: string, provider?: string, createdAfter?: Date, createdBefore?: Date, minSize?: number, maxSize?: number, sort?: 'CREATED_AT' | 'UPDATED_AT' | 'FILENAME' | 'SIZE', order?: 'ASC' | 'DESC', pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentSearchResponse;  }> {
+        const localVarPath = this.basePath + '/v1/doc/q';
+        let localVarQueryParameters: any = {};
+        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
+        const produces = ['application/json'];
+        // give precedence to 'application/json'
+        if (produces.indexOf('application/json') >= 0) {
+            localVarHeaderParams.Accept = 'application/json';
+        } else {
+            localVarHeaderParams.Accept = produces.join(',');
+        }
+        let localVarFormParams: any = {};
+
+        // verify required parameter 'corpusId' is not null or undefined
+        if (corpusId === null || corpusId === undefined) {
+            throw new Error('Required parameter corpusId was null or undefined when calling search.');
+        }
+
+        if (corpusId !== undefined) {
+            localVarQueryParameters['corpusId'] = ObjectSerializer.serialize(corpusId, "string");
+        }
+
+        if (q !== undefined) {
+            localVarQueryParameters['q'] = ObjectSerializer.serialize(q, "string");
+        }
+
+        if (tags !== undefined) {
+            localVarQueryParameters['tags'] = ObjectSerializer.serialize(tags, "Array<string>");
+        }
+
+        if (tagsMatch !== undefined) {
+            localVarQueryParameters['tagsMatch'] = ObjectSerializer.serialize(tagsMatch, "'ANY' | 'ALL'");
+        }
+
+        if (status !== undefined) {
+            localVarQueryParameters['status'] = ObjectSerializer.serialize(status, "Array<'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'>");
+        }
+
+        if (contentType !== undefined) {
+            localVarQueryParameters['contentType'] = ObjectSerializer.serialize(contentType, "Array<string>");
+        }
+
+        if (lang !== undefined) {
+            localVarQueryParameters['lang'] = ObjectSerializer.serialize(lang, "string");
+        }
+
+        if (provider !== undefined) {
+            localVarQueryParameters['provider'] = ObjectSerializer.serialize(provider, "string");
+        }
+
+        if (createdAfter !== undefined) {
+            localVarQueryParameters['createdAfter'] = ObjectSerializer.serialize(createdAfter, "Date");
+        }
+
+        if (createdBefore !== undefined) {
+            localVarQueryParameters['createdBefore'] = ObjectSerializer.serialize(createdBefore, "Date");
+        }
+
+        if (minSize !== undefined) {
+            localVarQueryParameters['minSize'] = ObjectSerializer.serialize(minSize, "number");
+        }
+
+        if (maxSize !== undefined) {
+            localVarQueryParameters['maxSize'] = ObjectSerializer.serialize(maxSize, "number");
+        }
+
+        if (sort !== undefined) {
+            localVarQueryParameters['sort'] = ObjectSerializer.serialize(sort, "'CREATED_AT' | 'UPDATED_AT' | 'FILENAME' | 'SIZE'");
+        }
+
+        if (order !== undefined) {
+            localVarQueryParameters['order'] = ObjectSerializer.serialize(order, "'ASC' | 'DESC'");
+        }
+
+        if (pageSize !== undefined) {
+            localVarQueryParameters['pageSize'] = ObjectSerializer.serialize(pageSize, "number");
+        }
+
+        if (pageIndex !== undefined) {
+            localVarQueryParameters['pageIndex'] = ObjectSerializer.serialize(pageIndex, "number");
+        }
+
+        (<any>Object).assign(localVarHeaderParams, options.headers);
+
+        let localVarUseFormData = false;
+
+        let localVarRequestOptions: localVarRequest.Options = {
+            method: 'GET',
+            qs: localVarQueryParameters,
+            headers: localVarHeaderParams,
+            uri: localVarPath,
+            useQuerystring: this._useQuerystring,
+            json: true,
+        };
+
+        let authenticationPromise = Promise.resolve();
+        if (this.authentications.JWT.accessToken) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
+        }
+        if (this.authentications.AccessToken.apiKey) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.AccessToken.applyToRequest(localVarRequestOptions));
+        }
+        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
+
+        let interceptorPromise = authenticationPromise;
+        for (const interceptor of this.interceptors) {
+            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
+        }
+
+        return interceptorPromise.then(() => {
+            if (Object.keys(localVarFormParams).length) {
+                if (localVarUseFormData) {
+                    (<any>localVarRequestOptions).formData = localVarFormParams;
+                } else {
+                    localVarRequestOptions.form = localVarFormParams;
+                }
+            }
+            return new Promise<{ response: http.IncomingMessage; body: DocumentSearchResponse;  }>((resolve, reject) => {
+                localVarRequest(localVarRequestOptions, (error, response, body) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
+                            body = ObjectSerializer.deserialize(body, "DocumentSearchResponse");
                             resolve({ response: response, body: body });
                         } else {
                             reject(new HttpError(response, body, response.statusCode));
@@ -944,7 +1108,7 @@ export class DocumentApi {
         });
     }
     /**
-     * Patch the editable attributes of a document — `filename`, `docCreate`, `docUpdate` and `metadata`. Only the fields present in the request body are updated; omitted fields keep their current value.  `metadata` **replaces** the stored map when provided — merge client-side if you want to preserve existing keys.  `docCreate` and `docUpdate` describe the **source** document, not the platform row: they are yours to correct, while `createdAt` and `updatedAt` remain server-managed and cannot be set here.  Every attribute is descriptive: renaming a document does not move the stored file nor re-trigger ingestion, so embeddings and previews are left untouched. Available in any lifecycle status. 
+     * Patch the editable attributes of a document — `filename`, `docCreate`, `docUpdate`, `metadata`, `tags` and `chunk`. Only the fields present in the request body are updated; omitted fields keep their current value.  `metadata`, `tags` and `chunk` **replace** the stored value when provided — merge client-side if you want to preserve existing entries. Send `\"tags\": []` to clear every tag, and `\"chunk\": {}` to drop the chunking override and fall back to the platform default.  `docCreate` and `docUpdate` describe the **source** document, not the platform row: they are yours to correct, while `createdAt` and `updatedAt` remain server-managed and cannot be set here.  Every attribute is descriptive: renaming a document does not move the stored file nor re-trigger ingestion, so embeddings and previews are left untouched. Changing `chunk` likewise applies to the **next** ingestion — it does not re-chunk an already ingested document. Available in any lifecycle status. 
      * @summary Update a document
      * @param id ID of the document to update.
      * @param documentUpdateRequest 

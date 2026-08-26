@@ -1,6 +1,6 @@
 /**
  * Verbatim AI — GenAI Backend API
- * Backend API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform.  ## Concepts  - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication  Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## Conventions  - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -180,7 +180,7 @@ export class PostApi {
      * @summary Delete a post
      * @param postId ID of the post to delete.
      */
-    public async delete3 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
+    public async delete4 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/{postId}'
             .replace('{postId}', encodeURIComponent(String(postId)));
         let localVarQueryParameters: any = {};
@@ -196,7 +196,7 @@ export class PostApi {
 
         // verify required parameter 'postId' is not null or undefined
         if (postId === null || postId === undefined) {
-            throw new Error('Required parameter postId was null or undefined when calling delete3.');
+            throw new Error('Required parameter postId was null or undefined when calling delete4.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -330,7 +330,7 @@ export class PostApi {
      * @summary Get a post
      * @param postId ID of the post.
      */
-    public async get3 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Post;  }> {
+    public async get4 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Post;  }> {
         const localVarPath = this.basePath + '/v1/post/{postId}'
             .replace('{postId}', encodeURIComponent(String(postId)));
         let localVarQueryParameters: any = {};
@@ -346,7 +346,7 @@ export class PostApi {
 
         // verify required parameter 'postId' is not null or undefined
         if (postId === null || postId === undefined) {
-            throw new Error('Required parameter postId was null or undefined when calling get3.');
+            throw new Error('Required parameter postId was null or undefined when calling get4.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -407,7 +407,7 @@ export class PostApi {
      * @param pageSize Number of items per page.
      * @param pageIndex Zero-based page index.
      */
-    public async list2 (sessionId: string, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostListResponse;  }> {
+    public async list3 (sessionId: string, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostListResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -422,7 +422,7 @@ export class PostApi {
 
         // verify required parameter 'sessionId' is not null or undefined
         if (sessionId === null || sessionId === undefined) {
-            throw new Error('Required parameter sessionId was null or undefined when calling list2.');
+            throw new Error('Required parameter sessionId was null or undefined when calling list3.');
         }
 
         if (sessionId !== undefined) {
@@ -489,12 +489,12 @@ export class PostApi {
         });
     }
     /**
-     * Return time-limited presigned URLs for the rendered preview images of the document. One entry is issued per (page, size): by default the first 4 pages × {SMALL, MEDIUM}, so up to 8 entries per call.  Pass `pages` to restrict the response to specific page indices (e.g. `pages=0&pages=2`). When omitted, pages 0–3 are used. Duplicate values are preserved as supplied.  The URLs point at preview images produced asynchronously by the rendering pipeline. No existence check is performed — individual URLs MAY return 404 when fetched if the corresponding (page, size) hasn\'t been generated yet; clients SHOULD fall back per-tile. 
+     * Return time-limited presigned URLs for the rendered preview images of the document.  `pages` is **required** and selects the zero-based page indices to issue URLs for: at least one, at most 10 per request — `400` otherwise. Repeat the parameter for several values (`pages=0&pages=2`) or send them comma-separated (`pages=0,2`). Duplicates are preserved as supplied and count towards the limit. Paginate over a long document with several calls rather than asking for every page at once.  Every index must address a page of *that* document: negatives are rejected, and so is anything at or past its page count once that count is known (`nbPages` from `GET /v1/doc/{id}`, `0` while the rendering pipeline has not reported it).  One entry is issued per (page, size) over {SMALL, MEDIUM}, so a call returns `2 × pages` entries — at most 20.  The URLs point at preview images produced asynchronously by the rendering pipeline. No existence check is performed — individual URLs MAY return 404 when fetched if the corresponding (page, size) hasn\'t been generated yet; clients SHOULD fall back per-tile. 
      * @summary Get presigned preview URLs
      * @param docId ID of the document.
-     * @param pages Page indices to include. When omitted, pages 0–3 are returned. Repeat for multiple values: &#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;.
+     * @param pages Zero-based page indices to issue preview URLs for. Required: 1 to 10 values per request, each within the document\&#39;s page range. Repeat for multiple values: &#x60;pages&#x3D;0&amp;pages&#x3D;2&#x60;.
      */
-    public async previewUrls (docId: string, pages?: Array<number>, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentPreviewUrls;  }> {
+    public async previewUrls (docId: string, pages: Array<number>, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentPreviewUrls;  }> {
         const localVarPath = this.basePath + '/v1/post/attachment/{docId}/preview-urls'
             .replace('{docId}', encodeURIComponent(String(docId)));
         let localVarQueryParameters: any = {};
@@ -511,6 +511,11 @@ export class PostApi {
         // verify required parameter 'docId' is not null or undefined
         if (docId === null || docId === undefined) {
             throw new Error('Required parameter docId was null or undefined when calling previewUrls.');
+        }
+
+        // verify required parameter 'pages' is not null or undefined
+        if (pages === null || pages === undefined) {
+            throw new Error('Required parameter pages was null or undefined when calling previewUrls.');
         }
 
         if (pages !== undefined) {
@@ -569,13 +574,14 @@ export class PostApi {
         });
     }
     /**
-     * Submit a user message to a session and run the full RAG pipeline:  1. Persist the query as a post with `owner = USER`. 2. Vectorize the query and run a cosine-similarity search against the session\'s corpora. 3. Feed the top chunks to the session\'s LLM as context. 4. Persist the answer as a post with `owner = SYSTEM`, with attachments pointing to the chunks used.  The response contains both the user post (`query`) and the system post (`answer`). 
+     * Submit a user message to a session and run the full RAG pipeline:  1. Persist the query as a post with `owner = USER`. 2. Vectorize the query and run a cosine-similarity search against the session\'s corpora. 3. Feed the top chunks to the session\'s LLM as context. 4. Persist the answer as a post with `owner = SYSTEM`, with attachments pointing to the chunks used.  The response contains both the user post (`query`) and the system post (`answer`).  ### Choosing an agent  How much of that pipeline runs, and how, is decided by an **agent** — retrieval width, whether the chunks are re-ranked, the system instruction, how much of the conversation is replayed, and which model answers. See `GET /v1/agent/`.  Omit `agentId` and the query runs on the platform default agent, which is what every query did before agents existed. Pass one to run this single query under a different setup:  ``` GET /v1/post/q?sessionId=$SESSION_ID&body=What+is+the+refund+policy%3F&agentId=$AGENT_ID ```  The choice is **per query, not per session** — the next query on the same session is independent, so a client can escalate one question to a wider, slower agent without changing the conversation it belongs to.  The agent is then recorded on the answer as `agentId`, and only on the answer: the user\'s question is not something an agent produced. A missing `agentId` on an answer therefore means \"ran on the default agent\", not \"unknown\". Deleting an agent does not rewrite the answers it produced, so this still names an agent you have since deleted — resolving that id through `GET /v1/agent/{agentId}` answers `404`, which is the honest reading.  An `agentId` your organization cannot see — someone else\'s, or one that never existed — answers `404` and no post is written. 
      * @summary Send a query
      * @param sessionId ID of the session to post the query into.
      * @param body User message to send to the LLM.
      * @param lang ISO-639 language code used by the LLM. Defaults to &#x60;en&#x60;.
+     * @param agentId Agent to run this query under. Omit to use the platform default agent. Must be one of the agents &#x60;GET /v1/agent/&#x60; lists for your organization.
      */
-    public async query (sessionId: string, body: string, lang?: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostItemResponse;  }> {
+    public async query (sessionId: string, body: string, lang?: string, agentId?: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostItemResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/q';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -608,6 +614,10 @@ export class PostApi {
 
         if (lang !== undefined) {
             localVarQueryParameters['lang'] = ObjectSerializer.serialize(lang, "string");
+        }
+
+        if (agentId !== undefined) {
+            localVarQueryParameters['agentId'] = ObjectSerializer.serialize(agentId, "string");
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);

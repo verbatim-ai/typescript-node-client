@@ -1,3 +1,5 @@
+export * from './agentApi';
+import { AgentApi } from './agentApi';
 export * from './authApi';
 import { AuthApi } from './authApi';
 export * from './configurationApi';
@@ -23,4 +25,4 @@ export class HttpError extends Error {
 
 export { RequestFile } from '../model/models';
 
-export const APIS = [AuthApi, ConfigurationApi, CorpusApi, DocumentApi, PostApi, SessionApi, UsageApi];
+export const APIS = [AgentApi, AuthApi, ConfigurationApi, CorpusApi, DocumentApi, PostApi, SessionApi, UsageApi];
