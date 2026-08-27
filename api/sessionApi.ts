@@ -100,6 +100,81 @@ export class SessionApi {
     }
 
     /**
+     * Soft-delete a session. **Cascades** to every post in the session (also soft-deleted). Documents and embeddings are **not** affected.
+     * @summary Delete a session
+     * @param sessionId ID of the session to delete.
+     */
+    public async _delete (sessionId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
+        const localVarPath = this.basePath + '/v1/session/{sessionId}'
+            .replace('{sessionId}', encodeURIComponent(String(sessionId)));
+        let localVarQueryParameters: any = {};
+        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
+        const produces = ['application/json'];
+        // give precedence to 'application/json'
+        if (produces.indexOf('application/json') >= 0) {
+            localVarHeaderParams.Accept = 'application/json';
+        } else {
+            localVarHeaderParams.Accept = produces.join(',');
+        }
+        let localVarFormParams: any = {};
+
+        // verify required parameter 'sessionId' is not null or undefined
+        if (sessionId === null || sessionId === undefined) {
+            throw new Error('Required parameter sessionId was null or undefined when calling _delete.');
+        }
+
+        (<any>Object).assign(localVarHeaderParams, options.headers);
+
+        let localVarUseFormData = false;
+
+        let localVarRequestOptions: localVarRequest.Options = {
+            method: 'DELETE',
+            qs: localVarQueryParameters,
+            headers: localVarHeaderParams,
+            uri: localVarPath,
+            useQuerystring: this._useQuerystring,
+            json: true,
+        };
+
+        let authenticationPromise = Promise.resolve();
+        if (this.authentications.JWT.accessToken) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
+        }
+        if (this.authentications.AccessToken.apiKey) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.AccessToken.applyToRequest(localVarRequestOptions));
+        }
+        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
+
+        let interceptorPromise = authenticationPromise;
+        for (const interceptor of this.interceptors) {
+            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
+        }
+
+        return interceptorPromise.then(() => {
+            if (Object.keys(localVarFormParams).length) {
+                if (localVarUseFormData) {
+                    (<any>localVarRequestOptions).formData = localVarFormParams;
+                } else {
+                    localVarRequestOptions.form = localVarFormParams;
+                }
+            }
+            return new Promise<{ response: http.IncomingMessage; body: AckResponse;  }>((resolve, reject) => {
+                localVarRequest(localVarRequestOptions, (error, response, body) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
+                            body = ObjectSerializer.deserialize(body, "AckResponse");
+                            resolve({ response: response, body: body });
+                        } else {
+                            reject(new HttpError(response, body, response.statusCode));
+                        }
+                    }
+                });
+            });
+        });
+    }
+    /**
      * Open a new conversation session against one or more corpora. The session is attached to the user carried by the caller\'s JWT. The model, system prompt, temperature and thinking flag are locked at creation time and apply to every post in the session.
      * @summary Create a session
      * @param sessionCreateRequest 
@@ -175,86 +250,11 @@ export class SessionApi {
         });
     }
     /**
-     * Soft-delete a session. **Cascades** to every post in the session (also soft-deleted). Documents and embeddings are **not** affected.
-     * @summary Delete a session
-     * @param sessionId ID of the session to delete.
-     */
-    public async delete2 (sessionId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
-        const localVarPath = this.basePath + '/v1/session/{sessionId}'
-            .replace('{sessionId}', encodeURIComponent(String(sessionId)));
-        let localVarQueryParameters: any = {};
-        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
-        const produces = ['application/json'];
-        // give precedence to 'application/json'
-        if (produces.indexOf('application/json') >= 0) {
-            localVarHeaderParams.Accept = 'application/json';
-        } else {
-            localVarHeaderParams.Accept = produces.join(',');
-        }
-        let localVarFormParams: any = {};
-
-        // verify required parameter 'sessionId' is not null or undefined
-        if (sessionId === null || sessionId === undefined) {
-            throw new Error('Required parameter sessionId was null or undefined when calling delete2.');
-        }
-
-        (<any>Object).assign(localVarHeaderParams, options.headers);
-
-        let localVarUseFormData = false;
-
-        let localVarRequestOptions: localVarRequest.Options = {
-            method: 'DELETE',
-            qs: localVarQueryParameters,
-            headers: localVarHeaderParams,
-            uri: localVarPath,
-            useQuerystring: this._useQuerystring,
-            json: true,
-        };
-
-        let authenticationPromise = Promise.resolve();
-        if (this.authentications.JWT.accessToken) {
-            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
-        }
-        if (this.authentications.AccessToken.apiKey) {
-            authenticationPromise = authenticationPromise.then(() => this.authentications.AccessToken.applyToRequest(localVarRequestOptions));
-        }
-        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
-
-        let interceptorPromise = authenticationPromise;
-        for (const interceptor of this.interceptors) {
-            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
-        }
-
-        return interceptorPromise.then(() => {
-            if (Object.keys(localVarFormParams).length) {
-                if (localVarUseFormData) {
-                    (<any>localVarRequestOptions).formData = localVarFormParams;
-                } else {
-                    localVarRequestOptions.form = localVarFormParams;
-                }
-            }
-            return new Promise<{ response: http.IncomingMessage; body: AckResponse;  }>((resolve, reject) => {
-                localVarRequest(localVarRequestOptions, (error, response, body) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
-                            body = ObjectSerializer.deserialize(body, "AckResponse");
-                            resolve({ response: response, body: body });
-                        } else {
-                            reject(new HttpError(response, body, response.statusCode));
-                        }
-                    }
-                });
-            });
-        });
-    }
-    /**
      * Fetch a session\'s metadata (user, corpora, model, system prompt, parameters). Use `GET /v1/post` to retrieve its posts.
      * @summary Get a session
      * @param sessionId ID of the session.
      */
-    public async get2 (sessionId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Session;  }> {
+    public async get (sessionId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Session;  }> {
         const localVarPath = this.basePath + '/v1/session/{sessionId}'
             .replace('{sessionId}', encodeURIComponent(String(sessionId)));
         let localVarQueryParameters: any = {};
@@ -270,7 +270,7 @@ export class SessionApi {
 
         // verify required parameter 'sessionId' is not null or undefined
         if (sessionId === null || sessionId === undefined) {
-            throw new Error('Required parameter sessionId was null or undefined when calling get2.');
+            throw new Error('Required parameter sessionId was null or undefined when calling get.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -331,7 +331,7 @@ export class SessionApi {
      * @param pageSize Number of items per page.
      * @param pageIndex Zero-based page index.
      */
-    public async list4 (corpusId: string, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: SessionListResponse;  }> {
+    public async list2 (corpusId: string, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: SessionListResponse;  }> {
         const localVarPath = this.basePath + '/v1/session/byCorpus';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -346,7 +346,7 @@ export class SessionApi {
 
         // verify required parameter 'corpusId' is not null or undefined
         if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling list4.');
+            throw new Error('Required parameter corpusId was null or undefined when calling list2.');
         }
 
         if (corpusId !== undefined) {
@@ -682,7 +682,7 @@ export class SessionApi {
      * @param sessionId ID of the session to update.
      * @param sessionUpdateRequest 
      */
-    public async update2 (sessionId: string, sessionUpdateRequest: SessionUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Session;  }> {
+    public async update (sessionId: string, sessionUpdateRequest: SessionUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Session;  }> {
         const localVarPath = this.basePath + '/v1/session/{sessionId}'
             .replace('{sessionId}', encodeURIComponent(String(sessionId)));
         let localVarQueryParameters: any = {};
@@ -698,12 +698,12 @@ export class SessionApi {
 
         // verify required parameter 'sessionId' is not null or undefined
         if (sessionId === null || sessionId === undefined) {
-            throw new Error('Required parameter sessionId was null or undefined when calling update2.');
+            throw new Error('Required parameter sessionId was null or undefined when calling update.');
         }
 
         // verify required parameter 'sessionUpdateRequest' is not null or undefined
         if (sessionUpdateRequest === null || sessionUpdateRequest === undefined) {
-            throw new Error('Required parameter sessionUpdateRequest was null or undefined when calling update2.');
+            throw new Error('Required parameter sessionUpdateRequest was null or undefined when calling update.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);

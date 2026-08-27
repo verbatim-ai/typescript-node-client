@@ -98,7 +98,7 @@ export class ConfigurationApi {
      * Return the identifiers of the LLM models the platform is configured to serve. The list is driven by the `app.ai.model` server property and is the same for every caller.
      * @summary List supported LLM models
      */
-    public async list6 (options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: ModelListResponse;  }> {
+    public async list5 (options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: ModelListResponse;  }> {
         const localVarPath = this.basePath + '/v1/config/model';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);

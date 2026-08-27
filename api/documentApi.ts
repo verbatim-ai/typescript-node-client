@@ -183,7 +183,7 @@ export class DocumentApi {
      * @summary Delete a document
      * @param id ID of the document to delete.
      */
-    public async delete3 (id: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
+    public async delete1 (id: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
         const localVarPath = this.basePath + '/v1/doc/{id}'
             .replace('{id}', encodeURIComponent(String(id)));
         let localVarQueryParameters: any = {};
@@ -199,7 +199,7 @@ export class DocumentApi {
 
         // verify required parameter 'id' is not null or undefined
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling delete3.');
+            throw new Error('Required parameter id was null or undefined when calling delete1.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -333,7 +333,7 @@ export class DocumentApi {
      * @summary Get a document
      * @param id ID of the document.
      */
-    public async get3 (id: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Document;  }> {
+    public async get1 (id: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Document;  }> {
         const localVarPath = this.basePath + '/v1/doc/{id}'
             .replace('{id}', encodeURIComponent(String(id)));
         let localVarQueryParameters: any = {};
@@ -349,7 +349,7 @@ export class DocumentApi {
 
         // verify required parameter 'id' is not null or undefined
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling get3.');
+            throw new Error('Required parameter id was null or undefined when calling get1.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -487,7 +487,7 @@ export class DocumentApi {
      * @param pageSize Number of items per page, 1-100.
      * @param pageIndex Zero-based page index.
      */
-    public async list5 (corpusId: string, status?: 'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED', tags?: Array<string>, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentListResponse;  }> {
+    public async list4 (corpusId: string, status?: 'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED', tags?: Array<string>, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentListResponse;  }> {
         const localVarPath = this.basePath + '/v1/doc/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -502,7 +502,7 @@ export class DocumentApi {
 
         // verify required parameter 'corpusId' is not null or undefined
         if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling list5.');
+            throw new Error('Required parameter corpusId was null or undefined when calling list4.');
         }
 
         if (corpusId !== undefined) {
@@ -1113,7 +1113,7 @@ export class DocumentApi {
      * @param id ID of the document to update.
      * @param documentUpdateRequest 
      */
-    public async update3 (id: string, documentUpdateRequest: DocumentUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Document;  }> {
+    public async update1 (id: string, documentUpdateRequest: DocumentUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Document;  }> {
         const localVarPath = this.basePath + '/v1/doc/{id}'
             .replace('{id}', encodeURIComponent(String(id)));
         let localVarQueryParameters: any = {};
@@ -1129,12 +1129,12 @@ export class DocumentApi {
 
         // verify required parameter 'id' is not null or undefined
         if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling update3.');
+            throw new Error('Required parameter id was null or undefined when calling update1.');
         }
 
         // verify required parameter 'documentUpdateRequest' is not null or undefined
         if (documentUpdateRequest === null || documentUpdateRequest === undefined) {
-            throw new Error('Required parameter documentUpdateRequest was null or undefined when calling update3.');
+            throw new Error('Required parameter documentUpdateRequest was null or undefined when calling update1.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);

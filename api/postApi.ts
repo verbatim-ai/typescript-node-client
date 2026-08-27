@@ -105,7 +105,7 @@ export class PostApi {
      * @summary Attachments from a post
      * @param postId ID of the post.
      */
-    public async attachment1 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostAttachmentResponse;  }> {
+    public async attachment (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostAttachmentResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/attachment/{postId}'
             .replace('{postId}', encodeURIComponent(String(postId)));
         let localVarQueryParameters: any = {};
@@ -121,7 +121,7 @@ export class PostApi {
 
         // verify required parameter 'postId' is not null or undefined
         if (postId === null || postId === undefined) {
-            throw new Error('Required parameter postId was null or undefined when calling attachment1.');
+            throw new Error('Required parameter postId was null or undefined when calling attachment.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -180,7 +180,7 @@ export class PostApi {
      * @summary Delete a post
      * @param postId ID of the post to delete.
      */
-    public async delete5 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
+    public async delete4 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/{postId}'
             .replace('{postId}', encodeURIComponent(String(postId)));
         let localVarQueryParameters: any = {};
@@ -196,7 +196,7 @@ export class PostApi {
 
         // verify required parameter 'postId' is not null or undefined
         if (postId === null || postId === undefined) {
-            throw new Error('Required parameter postId was null or undefined when calling delete5.');
+            throw new Error('Required parameter postId was null or undefined when calling delete4.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -330,7 +330,7 @@ export class PostApi {
      * @summary Get a post
      * @param postId ID of the post.
      */
-    public async get5 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Post;  }> {
+    public async get4 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Post;  }> {
         const localVarPath = this.basePath + '/v1/post/{postId}'
             .replace('{postId}', encodeURIComponent(String(postId)));
         let localVarQueryParameters: any = {};
@@ -346,7 +346,7 @@ export class PostApi {
 
         // verify required parameter 'postId' is not null or undefined
         if (postId === null || postId === undefined) {
-            throw new Error('Required parameter postId was null or undefined when calling get5.');
+            throw new Error('Required parameter postId was null or undefined when calling get4.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -407,7 +407,7 @@ export class PostApi {
      * @param pageSize Number of items per page.
      * @param pageIndex Zero-based page index.
      */
-    public async list (sessionId: string, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostListResponse;  }> {
+    public async list3 (sessionId: string, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostListResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -422,7 +422,7 @@ export class PostApi {
 
         // verify required parameter 'sessionId' is not null or undefined
         if (sessionId === null || sessionId === undefined) {
-            throw new Error('Required parameter sessionId was null or undefined when calling list.');
+            throw new Error('Required parameter sessionId was null or undefined when calling list3.');
         }
 
         if (sessionId !== undefined) {
@@ -581,7 +581,7 @@ export class PostApi {
      * @param lang ISO-639 language code used by the LLM. Defaults to &#x60;en&#x60;.
      * @param agentId Agent to run this query under. Omit to use the platform default agent. Must be one of the agents &#x60;GET /v1/agent/&#x60; lists for your organization.
      */
-    public async query1 (sessionId: string, body: string, lang?: string, agentId?: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostItemResponse;  }> {
+    public async query (sessionId: string, body: string, lang?: string, agentId?: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostItemResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/q';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -596,12 +596,12 @@ export class PostApi {
 
         // verify required parameter 'sessionId' is not null or undefined
         if (sessionId === null || sessionId === undefined) {
-            throw new Error('Required parameter sessionId was null or undefined when calling query1.');
+            throw new Error('Required parameter sessionId was null or undefined when calling query.');
         }
 
         // verify required parameter 'body' is not null or undefined
         if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling query1.');
+            throw new Error('Required parameter body was null or undefined when calling query.');
         }
 
         if (sessionId !== undefined) {
@@ -626,106 +626,6 @@ export class PostApi {
 
         let localVarRequestOptions: localVarRequest.Options = {
             method: 'GET',
-            qs: localVarQueryParameters,
-            headers: localVarHeaderParams,
-            uri: localVarPath,
-            useQuerystring: this._useQuerystring,
-            json: true,
-        };
-
-        let authenticationPromise = Promise.resolve();
-        if (this.authentications.JWT.accessToken) {
-            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
-        }
-        if (this.authentications.AccessToken.apiKey) {
-            authenticationPromise = authenticationPromise.then(() => this.authentications.AccessToken.applyToRequest(localVarRequestOptions));
-        }
-        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
-
-        let interceptorPromise = authenticationPromise;
-        for (const interceptor of this.interceptors) {
-            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
-        }
-
-        return interceptorPromise.then(() => {
-            if (Object.keys(localVarFormParams).length) {
-                if (localVarUseFormData) {
-                    (<any>localVarRequestOptions).formData = localVarFormParams;
-                } else {
-                    localVarRequestOptions.form = localVarFormParams;
-                }
-            }
-            return new Promise<{ response: http.IncomingMessage; body: PostItemResponse;  }>((resolve, reject) => {
-                localVarRequest(localVarRequestOptions, (error, response, body) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
-                            body = ObjectSerializer.deserialize(body, "PostItemResponse");
-                            resolve({ response: response, body: body });
-                        } else {
-                            reject(new HttpError(response, body, response.statusCode));
-                        }
-                    }
-                });
-            });
-        });
-    }
-    /**
-     * DEPRECATED. use GET /v1/post instead. Submit a user message to a session and run the full RAG pipeline:  1. Persist the query as a post with `owner = USER`. 2. Vectorize the query and run a cosine-similarity search against the session\'s corpora. 3. Feed the top chunks to the session\'s LLM as context. 4. Persist the answer as a post with `owner = SYSTEM`, with attachments pointing to the chunks used.  The response contains both the user post (`query`) and the system post (`answer`). 
-     * @summary DEPRECATED. use GET /v1/post/q instead. Send a query
-     * @param sessionId ID of the session to post the query into.
-     * @param body User message to send to the LLM.
-     * @param lang ISO-639 language code used by the LLM. Defaults to &#x60;en&#x60;.
-     * @param agentId Agent to run this query under. Omit to use the platform default agent. Must be one of the agents &#x60;GET /v1/agent/&#x60; lists for your organization.
-     *
-     * @deprecated
-     */
-    public async queryPostLegacy (sessionId: string, body: string, lang?: string, agentId?: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostItemResponse;  }> {
-        const localVarPath = this.basePath + '/v1/post/';
-        let localVarQueryParameters: any = {};
-        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
-        const produces = ['application/json'];
-        // give precedence to 'application/json'
-        if (produces.indexOf('application/json') >= 0) {
-            localVarHeaderParams.Accept = 'application/json';
-        } else {
-            localVarHeaderParams.Accept = produces.join(',');
-        }
-        let localVarFormParams: any = {};
-
-        // verify required parameter 'sessionId' is not null or undefined
-        if (sessionId === null || sessionId === undefined) {
-            throw new Error('Required parameter sessionId was null or undefined when calling queryPostLegacy.');
-        }
-
-        // verify required parameter 'body' is not null or undefined
-        if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling queryPostLegacy.');
-        }
-
-        if (sessionId !== undefined) {
-            localVarQueryParameters['sessionId'] = ObjectSerializer.serialize(sessionId, "string");
-        }
-
-        if (body !== undefined) {
-            localVarQueryParameters['body'] = ObjectSerializer.serialize(body, "string");
-        }
-
-        if (lang !== undefined) {
-            localVarQueryParameters['lang'] = ObjectSerializer.serialize(lang, "string");
-        }
-
-        if (agentId !== undefined) {
-            localVarQueryParameters['agentId'] = ObjectSerializer.serialize(agentId, "string");
-        }
-
-        (<any>Object).assign(localVarHeaderParams, options.headers);
-
-        let localVarUseFormData = false;
-
-        let localVarRequestOptions: localVarRequest.Options = {
-            method: 'POST',
             qs: localVarQueryParameters,
             headers: localVarHeaderParams,
             uri: localVarPath,

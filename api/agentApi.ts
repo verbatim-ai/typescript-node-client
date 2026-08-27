@@ -178,7 +178,7 @@ export class AgentApi {
      * @summary Delete an agent
      * @param agentId ID of the agent to delete.
      */
-    public async delete4 (agentId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
+    public async delete3 (agentId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
         const localVarPath = this.basePath + '/v1/agent/{agentId}'
             .replace('{agentId}', encodeURIComponent(String(agentId)));
         let localVarQueryParameters: any = {};
@@ -194,7 +194,7 @@ export class AgentApi {
 
         // verify required parameter 'agentId' is not null or undefined
         if (agentId === null || agentId === undefined) {
-            throw new Error('Required parameter agentId was null or undefined when calling delete4.');
+            throw new Error('Required parameter agentId was null or undefined when calling delete3.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -253,7 +253,7 @@ export class AgentApi {
      * @summary Get an agent
      * @param agentId ID of the agent.
      */
-    public async get4 (agentId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Agent;  }> {
+    public async get3 (agentId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Agent;  }> {
         const localVarPath = this.basePath + '/v1/agent/{agentId}'
             .replace('{agentId}', encodeURIComponent(String(agentId)));
         let localVarQueryParameters: any = {};
@@ -269,7 +269,7 @@ export class AgentApi {
 
         // verify required parameter 'agentId' is not null or undefined
         if (agentId === null || agentId === undefined) {
-            throw new Error('Required parameter agentId was null or undefined when calling get4.');
+            throw new Error('Required parameter agentId was null or undefined when calling get3.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -329,7 +329,7 @@ export class AgentApi {
      * @param pageSize Number of items per page.
      * @param pageIndex Zero-based page index.
      */
-    public async list2 (pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AgentListResponse;  }> {
+    public async list1 (pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AgentListResponse;  }> {
         const localVarPath = this.basePath + '/v1/agent/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -407,7 +407,7 @@ export class AgentApi {
      * @param agentId ID of the agent to update.
      * @param agentUpdateRequest 
      */
-    public async update4 (agentId: string, agentUpdateRequest: AgentUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Agent;  }> {
+    public async update3 (agentId: string, agentUpdateRequest: AgentUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Agent;  }> {
         const localVarPath = this.basePath + '/v1/agent/{agentId}'
             .replace('{agentId}', encodeURIComponent(String(agentId)));
         let localVarQueryParameters: any = {};
@@ -423,12 +423,12 @@ export class AgentApi {
 
         // verify required parameter 'agentId' is not null or undefined
         if (agentId === null || agentId === undefined) {
-            throw new Error('Required parameter agentId was null or undefined when calling update4.');
+            throw new Error('Required parameter agentId was null or undefined when calling update3.');
         }
 
         // verify required parameter 'agentUpdateRequest' is not null or undefined
         if (agentUpdateRequest === null || agentUpdateRequest === undefined) {
-            throw new Error('Required parameter agentUpdateRequest was null or undefined when calling update4.');
+            throw new Error('Required parameter agentUpdateRequest was null or undefined when calling update3.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);

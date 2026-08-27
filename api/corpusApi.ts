@@ -101,81 +101,6 @@ export class CorpusApi {
     }
 
     /**
-     * Permanently delete a corpus. **Cascades** to every session, post, document and embedding owned by this corpus. This operation cannot be undone.
-     * @summary Delete a corpus
-     * @param corpusId ID of the corpus to delete.
-     */
-    public async _delete (corpusId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
-        const localVarPath = this.basePath + '/v1/corpus/{corpusId}'
-            .replace('{corpusId}', encodeURIComponent(String(corpusId)));
-        let localVarQueryParameters: any = {};
-        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
-        const produces = ['application/json'];
-        // give precedence to 'application/json'
-        if (produces.indexOf('application/json') >= 0) {
-            localVarHeaderParams.Accept = 'application/json';
-        } else {
-            localVarHeaderParams.Accept = produces.join(',');
-        }
-        let localVarFormParams: any = {};
-
-        // verify required parameter 'corpusId' is not null or undefined
-        if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling _delete.');
-        }
-
-        (<any>Object).assign(localVarHeaderParams, options.headers);
-
-        let localVarUseFormData = false;
-
-        let localVarRequestOptions: localVarRequest.Options = {
-            method: 'DELETE',
-            qs: localVarQueryParameters,
-            headers: localVarHeaderParams,
-            uri: localVarPath,
-            useQuerystring: this._useQuerystring,
-            json: true,
-        };
-
-        let authenticationPromise = Promise.resolve();
-        if (this.authentications.JWT.accessToken) {
-            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
-        }
-        if (this.authentications.AccessToken.apiKey) {
-            authenticationPromise = authenticationPromise.then(() => this.authentications.AccessToken.applyToRequest(localVarRequestOptions));
-        }
-        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
-
-        let interceptorPromise = authenticationPromise;
-        for (const interceptor of this.interceptors) {
-            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
-        }
-
-        return interceptorPromise.then(() => {
-            if (Object.keys(localVarFormParams).length) {
-                if (localVarUseFormData) {
-                    (<any>localVarRequestOptions).formData = localVarFormParams;
-                } else {
-                    localVarRequestOptions.form = localVarFormParams;
-                }
-            }
-            return new Promise<{ response: http.IncomingMessage; body: AckResponse;  }>((resolve, reject) => {
-                localVarRequest(localVarRequestOptions, (error, response, body) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
-                            body = ObjectSerializer.deserialize(body, "AckResponse");
-                            resolve({ response: response, body: body });
-                        } else {
-                            reject(new HttpError(response, body, response.statusCode));
-                        }
-                    }
-                });
-            });
-        });
-    }
-    /**
      * Create a new corpus inside an organization. The embedding model and summary LLM are locked at creation time and used for every document ingested afterwards.
      * @summary Create a corpus
      * @param corpusCreateRequest 
@@ -251,11 +176,11 @@ export class CorpusApi {
         });
     }
     /**
-     * Fetch a corpus by its identifier.
-     * @summary Get a corpus
-     * @param corpusId ID of the corpus.
+     * Permanently delete a corpus. **Cascades** to every session, post, document and embedding owned by this corpus. This operation cannot be undone.
+     * @summary Delete a corpus
+     * @param corpusId ID of the corpus to delete.
      */
-    public async get (corpusId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusItemResponse;  }> {
+    public async delete2 (corpusId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
         const localVarPath = this.basePath + '/v1/corpus/{corpusId}'
             .replace('{corpusId}', encodeURIComponent(String(corpusId)));
         let localVarQueryParameters: any = {};
@@ -271,7 +196,82 @@ export class CorpusApi {
 
         // verify required parameter 'corpusId' is not null or undefined
         if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling get.');
+            throw new Error('Required parameter corpusId was null or undefined when calling delete2.');
+        }
+
+        (<any>Object).assign(localVarHeaderParams, options.headers);
+
+        let localVarUseFormData = false;
+
+        let localVarRequestOptions: localVarRequest.Options = {
+            method: 'DELETE',
+            qs: localVarQueryParameters,
+            headers: localVarHeaderParams,
+            uri: localVarPath,
+            useQuerystring: this._useQuerystring,
+            json: true,
+        };
+
+        let authenticationPromise = Promise.resolve();
+        if (this.authentications.JWT.accessToken) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
+        }
+        if (this.authentications.AccessToken.apiKey) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.AccessToken.applyToRequest(localVarRequestOptions));
+        }
+        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
+
+        let interceptorPromise = authenticationPromise;
+        for (const interceptor of this.interceptors) {
+            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
+        }
+
+        return interceptorPromise.then(() => {
+            if (Object.keys(localVarFormParams).length) {
+                if (localVarUseFormData) {
+                    (<any>localVarRequestOptions).formData = localVarFormParams;
+                } else {
+                    localVarRequestOptions.form = localVarFormParams;
+                }
+            }
+            return new Promise<{ response: http.IncomingMessage; body: AckResponse;  }>((resolve, reject) => {
+                localVarRequest(localVarRequestOptions, (error, response, body) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
+                            body = ObjectSerializer.deserialize(body, "AckResponse");
+                            resolve({ response: response, body: body });
+                        } else {
+                            reject(new HttpError(response, body, response.statusCode));
+                        }
+                    }
+                });
+            });
+        });
+    }
+    /**
+     * Fetch a corpus by its identifier.
+     * @summary Get a corpus
+     * @param corpusId ID of the corpus.
+     */
+    public async get2 (corpusId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusItemResponse;  }> {
+        const localVarPath = this.basePath + '/v1/corpus/{corpusId}'
+            .replace('{corpusId}', encodeURIComponent(String(corpusId)));
+        let localVarQueryParameters: any = {};
+        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
+        const produces = ['application/json'];
+        // give precedence to 'application/json'
+        if (produces.indexOf('application/json') >= 0) {
+            localVarHeaderParams.Accept = 'application/json';
+        } else {
+            localVarHeaderParams.Accept = produces.join(',');
+        }
+        let localVarFormParams: any = {};
+
+        // verify required parameter 'corpusId' is not null or undefined
+        if (corpusId === null || corpusId === undefined) {
+            throw new Error('Required parameter corpusId was null or undefined when calling get2.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -331,7 +331,7 @@ export class CorpusApi {
      * @param pageSize Number of items per page.
      * @param pageIndex Zero-based page index.
      */
-    public async list1 (pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusListResponse;  }> {
+    public async list (pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusListResponse;  }> {
         const localVarPath = this.basePath + '/v1/corpus/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -409,7 +409,7 @@ export class CorpusApi {
      * @param corpusId ID of the corpus to update.
      * @param corpusUpdateRequest 
      */
-    public async update (corpusId: string, corpusUpdateRequest: CorpusUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusUpdateResponse;  }> {
+    public async update2 (corpusId: string, corpusUpdateRequest: CorpusUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusUpdateResponse;  }> {
         const localVarPath = this.basePath + '/v1/corpus/{corpusId}'
             .replace('{corpusId}', encodeURIComponent(String(corpusId)));
         let localVarQueryParameters: any = {};
@@ -425,12 +425,12 @@ export class CorpusApi {
 
         // verify required parameter 'corpusId' is not null or undefined
         if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling update.');
+            throw new Error('Required parameter corpusId was null or undefined when calling update2.');
         }
 
         // verify required parameter 'corpusUpdateRequest' is not null or undefined
         if (corpusUpdateRequest === null || corpusUpdateRequest === undefined) {
-            throw new Error('Required parameter corpusUpdateRequest was null or undefined when calling update.');
+            throw new Error('Required parameter corpusUpdateRequest was null or undefined when calling update2.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -439,90 +439,6 @@ export class CorpusApi {
 
         let localVarRequestOptions: localVarRequest.Options = {
             method: 'PATCH',
-            qs: localVarQueryParameters,
-            headers: localVarHeaderParams,
-            uri: localVarPath,
-            useQuerystring: this._useQuerystring,
-            json: true,
-            body: ObjectSerializer.serialize(corpusUpdateRequest, "CorpusUpdateRequest")
-        };
-
-        let authenticationPromise = Promise.resolve();
-        if (this.authentications.JWT.accessToken) {
-            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
-        }
-        if (this.authentications.AccessToken.apiKey) {
-            authenticationPromise = authenticationPromise.then(() => this.authentications.AccessToken.applyToRequest(localVarRequestOptions));
-        }
-        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
-
-        let interceptorPromise = authenticationPromise;
-        for (const interceptor of this.interceptors) {
-            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
-        }
-
-        return interceptorPromise.then(() => {
-            if (Object.keys(localVarFormParams).length) {
-                if (localVarUseFormData) {
-                    (<any>localVarRequestOptions).formData = localVarFormParams;
-                } else {
-                    localVarRequestOptions.form = localVarFormParams;
-                }
-            }
-            return new Promise<{ response: http.IncomingMessage; body: CorpusUpdateResponse;  }>((resolve, reject) => {
-                localVarRequest(localVarRequestOptions, (error, response, body) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
-                            body = ObjectSerializer.deserialize(body, "CorpusUpdateResponse");
-                            resolve({ response: response, body: body });
-                        } else {
-                            reject(new HttpError(response, body, response.statusCode));
-                        }
-                    }
-                });
-            });
-        });
-    }
-    /**
-     * **Deprecated — use `PATCH /v1/corpus/{corpusId}` instead.**  Kept for backward compatibility and strictly equivalent to the `PATCH` operation: despite the `PUT` verb, omitted fields are **not** reset, they keep their current value. That partial-update semantic is what `PATCH` expresses correctly, hence the move. This operation will be removed in a future release. 
-     * @summary Update a corpus (deprecated)
-     * @param corpusId ID of the corpus to update.
-     * @param corpusUpdateRequest 
-     *
-     * @deprecated
-     */
-    public async updateLegacy (corpusId: string, corpusUpdateRequest: CorpusUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusUpdateResponse;  }> {
-        const localVarPath = this.basePath + '/v1/corpus/{corpusId}'
-            .replace('{corpusId}', encodeURIComponent(String(corpusId)));
-        let localVarQueryParameters: any = {};
-        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
-        const produces = ['application/json'];
-        // give precedence to 'application/json'
-        if (produces.indexOf('application/json') >= 0) {
-            localVarHeaderParams.Accept = 'application/json';
-        } else {
-            localVarHeaderParams.Accept = produces.join(',');
-        }
-        let localVarFormParams: any = {};
-
-        // verify required parameter 'corpusId' is not null or undefined
-        if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling updateLegacy.');
-        }
-
-        // verify required parameter 'corpusUpdateRequest' is not null or undefined
-        if (corpusUpdateRequest === null || corpusUpdateRequest === undefined) {
-            throw new Error('Required parameter corpusUpdateRequest was null or undefined when calling updateLegacy.');
-        }
-
-        (<any>Object).assign(localVarHeaderParams, options.headers);
-
-        let localVarUseFormData = false;
-
-        let localVarRequestOptions: localVarRequest.Options = {
-            method: 'PUT',
             qs: localVarQueryParameters,
             headers: localVarHeaderParams,
             uri: localVarPath,
