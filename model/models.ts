@@ -8,6 +8,8 @@ export * from './agentCreateRequest';
 export * from './agentListResponse';
 export * from './agentUpdateRequest';
 export * from './attachment';
+export * from './checkItem';
+export * from './checkResponse';
 export * from './corpus';
 export * from './corpusCreateRequest';
 export * from './corpusCreateResponse';
@@ -25,6 +27,13 @@ export * from './documentPreviewUrls';
 export * from './documentSearchResponse';
 export * from './documentStatus';
 export * from './documentUpdateRequest';
+export * from './key';
+export * from './keyCreateRequest';
+export * from './keyCreateResponse';
+export * from './keyItemResponse';
+export * from './keyListResponse';
+export * from './keyUpdateRequest';
+export * from './keyUpdateResponse';
 export * from './modelError';
 export * from './modelListResponse';
 export * from './post';
@@ -35,13 +44,28 @@ export * from './session';
 export * from './sessionCreateRequest';
 export * from './sessionCreateResponse';
 export * from './sessionListResponse';
+export * from './sessionMessage';
 export * from './sessionUpdateRequest';
 export * from './usage';
 export * from './usageBucket';
 export * from './usageCount';
 export * from './usageDelta';
 export * from './usageTokens';
+export * from './userOnboardResponse';
 export * from './whoAmI';
+export * from './widgetAttachment';
+export * from './widgetAttachmentPage';
+export * from './widgetAttachmentResponse';
+export * from './widgetMessageResponse';
+export * from './widgetMessageResponseItem';
+export * from './widgetPost';
+export * from './widgetPostsResponse';
+export * from './widgetQueryResponse';
+export * from './widgetSessionRequest';
+export * from './widgetSessionRequestBody';
+export * from './widgetSessionResponse';
+export * from './widgetSessionResponseItem';
+export * from './widgetSessionResponseLegacy';
 
 import * as fs from 'fs';
 
@@ -64,6 +88,8 @@ import { AgentCreateRequest } from './agentCreateRequest';
 import { AgentListResponse } from './agentListResponse';
 import { AgentUpdateRequest } from './agentUpdateRequest';
 import { Attachment } from './attachment';
+import { CheckItem } from './checkItem';
+import { CheckResponse } from './checkResponse';
 import { Corpus } from './corpus';
 import { CorpusCreateRequest } from './corpusCreateRequest';
 import { CorpusCreateResponse } from './corpusCreateResponse';
@@ -81,6 +107,13 @@ import { DocumentPreviewUrls } from './documentPreviewUrls';
 import { DocumentSearchResponse } from './documentSearchResponse';
 import { DocumentStatus } from './documentStatus';
 import { DocumentUpdateRequest } from './documentUpdateRequest';
+import { Key } from './key';
+import { KeyCreateRequest } from './keyCreateRequest';
+import { KeyCreateResponse } from './keyCreateResponse';
+import { KeyItemResponse } from './keyItemResponse';
+import { KeyListResponse } from './keyListResponse';
+import { KeyUpdateRequest } from './keyUpdateRequest';
+import { KeyUpdateResponse } from './keyUpdateResponse';
 import { ModelError } from './modelError';
 import { ModelListResponse } from './modelListResponse';
 import { Post } from './post';
@@ -91,13 +124,28 @@ import { Session } from './session';
 import { SessionCreateRequest } from './sessionCreateRequest';
 import { SessionCreateResponse } from './sessionCreateResponse';
 import { SessionListResponse } from './sessionListResponse';
+import { SessionMessage } from './sessionMessage';
 import { SessionUpdateRequest } from './sessionUpdateRequest';
 import { Usage } from './usage';
 import { UsageBucket } from './usageBucket';
 import { UsageCount } from './usageCount';
 import { UsageDelta } from './usageDelta';
 import { UsageTokens } from './usageTokens';
+import { UserOnboardResponse } from './userOnboardResponse';
 import { WhoAmI } from './whoAmI';
+import { WidgetAttachment } from './widgetAttachment';
+import { WidgetAttachmentPage } from './widgetAttachmentPage';
+import { WidgetAttachmentResponse } from './widgetAttachmentResponse';
+import { WidgetMessageResponse } from './widgetMessageResponse';
+import { WidgetMessageResponseItem } from './widgetMessageResponseItem';
+import { WidgetPost } from './widgetPost';
+import { WidgetPostsResponse } from './widgetPostsResponse';
+import { WidgetQueryResponse } from './widgetQueryResponse';
+import { WidgetSessionRequest } from './widgetSessionRequest';
+import { WidgetSessionRequestBody } from './widgetSessionRequestBody';
+import { WidgetSessionResponse } from './widgetSessionResponse';
+import { WidgetSessionResponseItem } from './widgetSessionResponseItem';
+import { WidgetSessionResponseLegacy } from './widgetSessionResponseLegacy';
 
 /* tslint:disable:no-unused-variable */
 let primitives = [
@@ -115,11 +163,18 @@ let enumsMap: {[index: string]: any} = {
         "Agent.ThinkingModeEnum": Agent.ThinkingModeEnum,
         "AgentCreateRequest.ThinkingModeEnum": AgentCreateRequest.ThinkingModeEnum,
         "AgentUpdateRequest.ThinkingModeEnum": AgentUpdateRequest.ThinkingModeEnum,
+        "CheckItem.StatusEnum": CheckItem.StatusEnum,
+        "CheckResponse.StatusEnum": CheckResponse.StatusEnum,
         "Document.StatusEnum": Document.StatusEnum,
         "DocumentPreviewUrl.SizeEnum": DocumentPreviewUrl.SizeEnum,
         "DocumentStatus.StatusEnum": DocumentStatus.StatusEnum,
+        "Key.FormatEnum": Key.FormatEnum,
+        "Key.StateEnum": Key.StateEnum,
+        "KeyCreateResponse.StateEnum": KeyCreateResponse.StateEnum,
+        "KeyUpdateResponse.StateEnum": KeyUpdateResponse.StateEnum,
         "Post.OwnerEnum": Post.OwnerEnum,
         "Usage.TimeframeEnum": Usage.TimeframeEnum,
+        "WidgetPost.OwnerEnum": WidgetPost.OwnerEnum,
 }
 
 let typeMap: {[index: string]: any} = {
@@ -131,6 +186,8 @@ let typeMap: {[index: string]: any} = {
     "AgentListResponse": AgentListResponse,
     "AgentUpdateRequest": AgentUpdateRequest,
     "Attachment": Attachment,
+    "CheckItem": CheckItem,
+    "CheckResponse": CheckResponse,
     "Corpus": Corpus,
     "CorpusCreateRequest": CorpusCreateRequest,
     "CorpusCreateResponse": CorpusCreateResponse,
@@ -148,6 +205,13 @@ let typeMap: {[index: string]: any} = {
     "DocumentSearchResponse": DocumentSearchResponse,
     "DocumentStatus": DocumentStatus,
     "DocumentUpdateRequest": DocumentUpdateRequest,
+    "Key": Key,
+    "KeyCreateRequest": KeyCreateRequest,
+    "KeyCreateResponse": KeyCreateResponse,
+    "KeyItemResponse": KeyItemResponse,
+    "KeyListResponse": KeyListResponse,
+    "KeyUpdateRequest": KeyUpdateRequest,
+    "KeyUpdateResponse": KeyUpdateResponse,
     "ModelError": ModelError,
     "ModelListResponse": ModelListResponse,
     "Post": Post,
@@ -158,13 +222,28 @@ let typeMap: {[index: string]: any} = {
     "SessionCreateRequest": SessionCreateRequest,
     "SessionCreateResponse": SessionCreateResponse,
     "SessionListResponse": SessionListResponse,
+    "SessionMessage": SessionMessage,
     "SessionUpdateRequest": SessionUpdateRequest,
     "Usage": Usage,
     "UsageBucket": UsageBucket,
     "UsageCount": UsageCount,
     "UsageDelta": UsageDelta,
     "UsageTokens": UsageTokens,
+    "UserOnboardResponse": UserOnboardResponse,
     "WhoAmI": WhoAmI,
+    "WidgetAttachment": WidgetAttachment,
+    "WidgetAttachmentPage": WidgetAttachmentPage,
+    "WidgetAttachmentResponse": WidgetAttachmentResponse,
+    "WidgetMessageResponse": WidgetMessageResponse,
+    "WidgetMessageResponseItem": WidgetMessageResponseItem,
+    "WidgetPost": WidgetPost,
+    "WidgetPostsResponse": WidgetPostsResponse,
+    "WidgetQueryResponse": WidgetQueryResponse,
+    "WidgetSessionRequest": WidgetSessionRequest,
+    "WidgetSessionRequestBody": WidgetSessionRequestBody,
+    "WidgetSessionResponse": WidgetSessionResponse,
+    "WidgetSessionResponseItem": WidgetSessionResponseItem,
+    "WidgetSessionResponseLegacy": WidgetSessionResponseLegacy,
 }
 
 // Check if a string starts with another string without using es6 features
