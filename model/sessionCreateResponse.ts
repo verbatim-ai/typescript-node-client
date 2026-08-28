@@ -29,21 +29,9 @@ export class SessionCreateResponse {
     */
     'corpusId': Array<string>;
     /**
-    * LLM bound to the session.
+    * @deprecated
     */
-    'model': string;
-    /**
-    * System prompt the LLM was initialised with.
-    */
-    'system'?: string;
-    /**
-    * Sampling temperature configured on the session.
-    */
-    'temperature'?: number;
-    /**
-    * Whether the model\'s *thinking* mode is enabled on this session.
-    */
-    'thinking'?: boolean;
+    'model'?: string;
     /**
     * Arbitrary JSON metadata attached to the session.
     */
@@ -52,6 +40,10 @@ export class SessionCreateResponse {
     * Creation timestamp of the session (ISO-8601, UTC).
     */
     'createdAt': Date;
+    /**
+    * Last modification of the session (ISO-8601, UTC). Equal to `createdAt` on a session that has just been created.
+    */
+    'updatedAt': Date;
 
     static discriminator: string | undefined = undefined;
 
@@ -77,21 +69,6 @@ export class SessionCreateResponse {
             "type": "string"
         },
         {
-            "name": "system",
-            "baseName": "system",
-            "type": "string"
-        },
-        {
-            "name": "temperature",
-            "baseName": "temperature",
-            "type": "number"
-        },
-        {
-            "name": "thinking",
-            "baseName": "thinking",
-            "type": "boolean"
-        },
-        {
             "name": "metadata",
             "baseName": "metadata",
             "type": "{ [key: string]: any | null; }"
@@ -99,6 +76,11 @@ export class SessionCreateResponse {
         {
             "name": "createdAt",
             "baseName": "createdAt",
+            "type": "Date"
+        },
+        {
+            "name": "updatedAt",
+            "baseName": "updatedAt",
             "type": "Date"
         }    ];
 

@@ -29,22 +29,6 @@ export class Session {
     */
     'corpusIds': Array<string>;
     /**
-    * LLM bound to the session.
-    */
-    'model': string;
-    /**
-    * System prompt the LLM was initialised with.
-    */
-    'system'?: string;
-    /**
-    * Sampling temperature configured on the session.
-    */
-    'temperature'?: number;
-    /**
-    * Whether the model\'s *thinking* mode is enabled on this session.
-    */
-    'thinking'?: boolean;
-    /**
     * Arbitrary JSON metadata attached to the session.
     */
     'metadata'?: { [key: string]: any | null; };
@@ -52,6 +36,14 @@ export class Session {
     * Creation timestamp of the session (ISO-8601, UTC).
     */
     'createdAt': Date;
+    /**
+    * Last modification of the session (ISO-8601, UTC) — moved by `PATCH /v1/session/{sessionId}`. Equal to `createdAt` on a session nobody has patched.
+    */
+    'updatedAt': Date;
+    /**
+    * @deprecated
+    */
+    'model'?: string;
 
     static discriminator: string | undefined = undefined;
 
@@ -72,26 +64,6 @@ export class Session {
             "type": "Array<string>"
         },
         {
-            "name": "model",
-            "baseName": "model",
-            "type": "string"
-        },
-        {
-            "name": "system",
-            "baseName": "system",
-            "type": "string"
-        },
-        {
-            "name": "temperature",
-            "baseName": "temperature",
-            "type": "number"
-        },
-        {
-            "name": "thinking",
-            "baseName": "thinking",
-            "type": "boolean"
-        },
-        {
             "name": "metadata",
             "baseName": "metadata",
             "type": "{ [key: string]: any | null; }"
@@ -100,6 +72,16 @@ export class Session {
             "name": "createdAt",
             "baseName": "createdAt",
             "type": "Date"
+        },
+        {
+            "name": "updatedAt",
+            "baseName": "updatedAt",
+            "type": "Date"
+        },
+        {
+            "name": "model",
+            "baseName": "model",
+            "type": "string"
         }    ];
 
     static getAttributeTypeMap() {

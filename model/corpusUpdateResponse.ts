@@ -36,6 +36,10 @@ export class CorpusUpdateResponse {
     * Description of the corpus.
     */
     'description': string;
+    /**
+    * @deprecated
+    */
+    'orgId'?: string;
 
     static discriminator: string | undefined = undefined;
 
@@ -63,6 +67,11 @@ export class CorpusUpdateResponse {
         {
             "name": "description",
             "baseName": "description",
+            "type": "string"
+        },
+        {
+            "name": "orgId",
+            "baseName": "orgId",
             "type": "string"
         }    ];
 

@@ -18,10 +18,6 @@ import { Corpus } from './corpus';
 */
 export class CorpusListResponse {
     /**
-    * ID of the parent organization (UUIDv4).
-    */
-    'orgId': string;
-    /**
     * Zero-based index of the returned page.
     */
     'pageIndex'?: number;
@@ -29,15 +25,14 @@ export class CorpusListResponse {
     * Corpora contained in this page, newest first.
     */
     'items'?: Array<Corpus>;
+    /**
+    * @deprecated
+    */
+    'orgId'?: string;
 
     static discriminator: string | undefined = undefined;
 
     static attributeTypeMap: Array<{name: string, baseName: string, type: string}> = [
-        {
-            "name": "orgId",
-            "baseName": "orgId",
-            "type": "string"
-        },
         {
             "name": "pageIndex",
             "baseName": "pageIndex",
@@ -47,6 +42,11 @@ export class CorpusListResponse {
             "name": "items",
             "baseName": "items",
             "type": "Array<Corpus>"
+        },
+        {
+            "name": "orgId",
+            "baseName": "orgId",
+            "type": "string"
         }    ];
 
     static getAttributeTypeMap() {

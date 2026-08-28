@@ -17,22 +17,6 @@ import { RequestFile } from './models';
 */
 export class SessionUpdateRequest {
     /**
-    * New LLM for the session. Must be installed on the Ollama runtime. Omit to keep the current model.
-    */
-    'model'?: string;
-    /**
-    * New system prompt. Omit to keep the current prompt.
-    */
-    'system'?: string;
-    /**
-    * New sampling temperature. Omit to keep the current value.
-    */
-    'temperature'?: number;
-    /**
-    * Enable or disable thinking mode. Omit to keep the current value.
-    */
-    'thinking'?: boolean;
-    /**
     * New JSON metadata. When provided, **replaces** the existing metadata map; omit to keep it unchanged.
     */
     'metadata'?: { [key: string]: any | null; };
@@ -40,26 +24,6 @@ export class SessionUpdateRequest {
     static discriminator: string | undefined = undefined;
 
     static attributeTypeMap: Array<{name: string, baseName: string, type: string}> = [
-        {
-            "name": "model",
-            "baseName": "model",
-            "type": "string"
-        },
-        {
-            "name": "system",
-            "baseName": "system",
-            "type": "string"
-        },
-        {
-            "name": "temperature",
-            "baseName": "temperature",
-            "type": "number"
-        },
-        {
-            "name": "thinking",
-            "baseName": "thinking",
-            "type": "boolean"
-        },
         {
             "name": "metadata",
             "baseName": "metadata",

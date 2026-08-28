@@ -824,7 +824,7 @@ export class DocumentApi {
      * @param pageSize Number of items per page, 1-100.
      * @param pageIndex Zero-based page index.
      */
-    public async search (corpusId: string, q?: string, tags?: Array<string>, tagsMatch?: 'ANY' | 'ALL', status?: Array<'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'>, contentType?: Array<string>, lang?: string, provider?: string, createdAfter?: Date, createdBefore?: Date, minSize?: number, maxSize?: number, sort?: 'CREATED_AT' | 'UPDATED_AT' | 'FILENAME' | 'SIZE', order?: 'ASC' | 'DESC', pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentSearchResponse;  }> {
+    public async search1 (corpusId: string, q?: string, tags?: Array<string>, tagsMatch?: 'ANY' | 'ALL', status?: Array<'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'>, contentType?: Array<string>, lang?: string, provider?: string, createdAfter?: Date, createdBefore?: Date, minSize?: number, maxSize?: number, sort?: 'CREATED_AT' | 'UPDATED_AT' | 'FILENAME' | 'SIZE', order?: 'ASC' | 'DESC', pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentSearchResponse;  }> {
         const localVarPath = this.basePath + '/v1/doc/q';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -839,7 +839,7 @@ export class DocumentApi {
 
         // verify required parameter 'corpusId' is not null or undefined
         if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling search.');
+            throw new Error('Required parameter corpusId was null or undefined when calling search1.');
         }
 
         if (corpusId !== undefined) {

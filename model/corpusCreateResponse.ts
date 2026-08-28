@@ -36,6 +36,10 @@ export class CorpusCreateResponse {
     * JSON metadata attached to the corpus.
     */
     'metadata'?: { [key: string]: any | null; };
+    /**
+    * @deprecated
+    */
+    'orgId'?: string;
 
     static discriminator: string | undefined = undefined;
 
@@ -64,6 +68,11 @@ export class CorpusCreateResponse {
             "name": "metadata",
             "baseName": "metadata",
             "type": "{ [key: string]: any | null; }"
+        },
+        {
+            "name": "orgId",
+            "baseName": "orgId",
+            "type": "string"
         }    ];
 
     static getAttributeTypeMap() {

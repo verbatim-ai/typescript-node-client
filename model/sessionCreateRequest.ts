@@ -21,22 +21,6 @@ export class SessionCreateRequest {
     */
     'corpusIds': Array<string>;
     /**
-    * Name of the LLM used to answer queries in this session. Must be installed on the Ollama runtime.
-    */
-    'model': string;
-    /**
-    * System prompt sent to the LLM as the first message. Falls back to a default RAG prompt when omitted.
-    */
-    'system'?: string;
-    /**
-    * Sampling temperature. Range and meaning depend on the model — refer to the model\'s documentation.
-    */
-    'temperature'?: number;
-    /**
-    * Enable the model\'s *thinking* mode. Only honored by models that support it.
-    */
-    'thinking'?: boolean;
-    /**
     * Arbitrary JSON metadata attached to the session. Stored as JSONB.
     */
     'metadata'?: { [key: string]: any | null; };
@@ -48,26 +32,6 @@ export class SessionCreateRequest {
             "name": "corpusIds",
             "baseName": "corpusIds",
             "type": "Array<string>"
-        },
-        {
-            "name": "model",
-            "baseName": "model",
-            "type": "string"
-        },
-        {
-            "name": "system",
-            "baseName": "system",
-            "type": "string"
-        },
-        {
-            "name": "temperature",
-            "baseName": "temperature",
-            "type": "number"
-        },
-        {
-            "name": "thinking",
-            "baseName": "thinking",
-            "type": "boolean"
         },
         {
             "name": "metadata",

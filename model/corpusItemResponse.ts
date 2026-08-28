@@ -18,9 +18,9 @@ import { Corpus } from './corpus';
 */
 export class CorpusItemResponse {
     /**
-    * ID of the parent organization (UUIDv4).
+    * @deprecated
     */
-    'orgId': string;
+    'orgId'?: string;
     /**
     * The corpus payload.
     */

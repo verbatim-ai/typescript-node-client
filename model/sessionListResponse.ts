@@ -20,15 +20,11 @@ export class SessionListResponse {
     /**
     * Echo of the corpus filter, when the listing was filtered by corpus.
     */
-    'corpusId': string;
+    'corpusId'?: string;
     /**
     * Echo of the user filter, when the listing was filtered by user.
     */
     'userId'?: string;
-    /**
-    * Echo of the organization scope (resolved from the caller\'s JWT).
-    */
-    'orgId': string;
     /**
     * Echo of the metadata fragment used to filter the listing, when applicable.
     */
@@ -61,11 +57,6 @@ export class SessionListResponse {
         {
             "name": "userId",
             "baseName": "userId",
-            "type": "string"
-        },
-        {
-            "name": "orgId",
-            "baseName": "orgId",
             "type": "string"
         },
         {

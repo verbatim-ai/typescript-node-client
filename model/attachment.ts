@@ -18,8 +18,6 @@ import { RequestFile } from './models';
 export class Attachment {
     /**
     * ID of the post (UUIDv4).
-    *
-    * @deprecated
     */
     'postId': string;
     /**

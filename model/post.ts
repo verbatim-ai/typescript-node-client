@@ -11,7 +11,6 @@
  */
 
 import { RequestFile } from './models';
-import { Attachment } from './attachment';
 
 /**
 * Single user query or system answer inside a session.
@@ -25,6 +24,10 @@ export class Post {
     * ID of the session this post belongs to.
     */
     'sessionId': string;
+    /**
+    * Agent this answer was produced under
+    */
+    'agentId': string;
     /**
     * Text content of the post — the user query when `owner = USER`, the LLM answer when `owner = SYSTEM`.
     */
@@ -50,19 +53,9 @@ export class Post {
     */
     'createdAt': Date;
     /**
-    * DEPRECATED. Use /post/attachment to get accurate list. Legacy info :Document chunks used as context for this post. Only populated on system answers.
-    *
-    * @deprecated
-    */
-    'attachments'?: Array<Attachment>;
-    /**
     * Number of attachment used in the post. Used /post/attachment to get details. Filled only when post have more than one attachment. Zero when no attachment.
     */
     'attachment'?: number;
-    /**
-    * Agent this answer was produced under, when the query named one explicitly (`GET /v1/post/q?agentId=…`). Absent when the query ran on the platform default agent, which is the usual case — so a missing `agentId` means \"default\", not \"unknown\". Only system answers carry it; the user\'s question never does. Deleting an agent does not rewrite the answers it produced, so this still identifies an agent you have since deleted — resolving it through `GET /v1/agent/{agentId}` then answers `404`.
-    */
-    'agentId'?: string;
 
     static discriminator: string | undefined = undefined;
 
@@ -75,6 +68,11 @@ export class Post {
         {
             "name": "sessionId",
             "baseName": "sessionId",
+            "type": "string"
+        },
+        {
+            "name": "agentId",
+            "baseName": "agentId",
             "type": "string"
         },
         {
@@ -108,19 +106,9 @@ export class Post {
             "type": "Date"
         },
         {
-            "name": "attachments",
-            "baseName": "attachments",
-            "type": "Array<Attachment>"
-        },
-        {
             "name": "attachment",
             "baseName": "attachment",
             "type": "number"
-        },
-        {
-            "name": "agentId",
-            "baseName": "agentId",
-            "type": "string"
         }    ];
 
     static getAttributeTypeMap() {

@@ -175,7 +175,7 @@ export class SessionApi {
         });
     }
     /**
-     * Open a new conversation session against one or more corpora. The session is attached to the user carried by the caller\'s JWT. The model, system prompt, temperature and thinking flag are locked at creation time and apply to every post in the session.
+     * Open a new conversation session against one or more corpora. The session is attached to the user carried by the caller\'s JWT. How its queries are answered is not decided here: the agent named on each query decides, so a session carries the corpora, the owner and whatever metadata you attach to it.
      * @summary Create a session
      * @param sessionCreateRequest 
      */
@@ -325,14 +325,13 @@ export class SessionApi {
         });
     }
     /**
-     * Paginate the sessions opened against a corpus, newest first. The corpus must belong to the caller\'s organization.
-     * @summary List sessions attached to a corpus
-     * @param corpusId ID of the corpus.
-     * @param pageSize Number of items per page.
+     * Paginate every session of the caller\'s organization, newest first.  The organization is resolved from the JWT, so there is nothing to pass and no way to ask for another tenant\'s sessions. A session belongs to an organization as soon as one of its corpora does.  The ordering is closed by the session id, so walking `pageIndex` never shows the same session twice nor skips one when several were opened in the same millisecond. `total` counts every session in the organization, not just those returned here.  To narrow the result — by user, by corpus, by metadata, or by any combination of the three — use `GET /v1/session/q`, which takes the same paging parameters. 
+     * @summary List sessions
+     * @param pageSize Number of items per page, 1-100.
      * @param pageIndex Zero-based page index.
      */
-    public async list2 (corpusId: string, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: SessionListResponse;  }> {
-        const localVarPath = this.basePath + '/v1/session/byCorpus';
+    public async list (pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: SessionListResponse;  }> {
+        const localVarPath = this.basePath + '/v1/session/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
         const produces = ['application/json'];
@@ -343,15 +342,6 @@ export class SessionApi {
             localVarHeaderParams.Accept = produces.join(',');
         }
         let localVarFormParams: any = {};
-
-        // verify required parameter 'corpusId' is not null or undefined
-        if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling list2.');
-        }
-
-        if (corpusId !== undefined) {
-            localVarQueryParameters['corpusId'] = ObjectSerializer.serialize(corpusId, "string");
-        }
 
         if (pageSize !== undefined) {
             localVarQueryParameters['pageSize'] = ObjectSerializer.serialize(pageSize, "number");
@@ -413,16 +403,18 @@ export class SessionApi {
         });
     }
     /**
-     * Paginate sessions whose metadata JSONB *contains* the provided fragment (PostgreSQL `@>` operator). Results are scoped to the caller\'s organization. Filtering on a single key/value pair: pass `key` and `value`. For richer filtering (nested JSON, multiple keys) pass a raw JSON object as `json`.
-     * @summary List sessions matching a metadata fragment
-     * @param key Metadata key to filter on. Pair with &#x60;value&#x60;.
+     * Find sessions of the caller\'s organization by owner, corpus and metadata.  Every filter is optional and they **narrow together**: a request carrying none of them returns the whole organization — the same answer as `GET /v1/session/` — and one carrying several returns only the sessions matching all of them. That is what this endpoint adds over the `by…` listings it replaces, which each answer one fixed combination.  The organization is never a parameter. It comes from the JWT and is always applied, so no combination of filters reaches another tenant\'s sessions.  ### Owner — `userId`  Exact match on the identifier carried by the JWT when the session was opened. Sent empty (`&userId=`) it is treated as absent rather than as a match on the empty string.  ### Corpus — `corpusId`  Keeps sessions bound to that corpus. A session may be bound to several, and it matches as soon as one of them is the requested one. The corpus must belong to the caller\'s organization.  ### Metadata — `key`/`value`, or `json`  Matches sessions whose metadata **contains** the fragment (PostgreSQL\'s `@>` operator), extra keys on the session being fine. Pass `key` and `value` for a single pair — they go together, one without the other is a `400` — or `json` for a raw object when the filter is nested or has several keys. `json` wins when both are supplied.  ### Ordering and paging  Newest first, closed by the session id, so walking `pageIndex` never shows the same session twice nor skips one. `total` counts every match across all pages.  ### Examples  * `?userId=user_42` — every session that user opened, across corpora * `?corpusId=…` — every session opened against one corpus, whoever opened it * `?userId=user_42&corpusId=…` — both, which `GET /v1/session/byUser` also did * `?userId=user_42&key=customer_id&value=42` — the combination none of the   `by…` endpoints could express * `?json={\"channel\":{\"kind\":\"web\"}}` — a nested metadata fragment 
+     * @summary Search sessions
+     * @param userId Exact identifier of the user who opened the session. Blank or omitted, the owner is not filtered.
+     * @param corpusId Keep sessions bound to this corpus. Must belong to the caller\&#39;s organization.
+     * @param key Metadata key to filter on. Goes together with &#x60;value&#x60;.
      * @param value Metadata value matching &#x60;key&#x60;.
      * @param json Raw JSON object used as the containment filter. Wins over &#x60;key&#x60;/&#x60;value&#x60; when set.
-     * @param pageSize Number of items per page.
+     * @param pageSize Number of items per page, 1-100.
      * @param pageIndex Zero-based page index.
      */
-    public async listByMetadata (key?: string, value?: string, json?: string, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: SessionListResponse;  }> {
-        const localVarPath = this.basePath + '/v1/session/byMetadata';
+    public async search (userId?: string, corpusId?: string, key?: string, value?: string, json?: string, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: SessionListResponse;  }> {
+        const localVarPath = this.basePath + '/v1/session/q';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
         const produces = ['application/json'];
@@ -433,6 +425,14 @@ export class SessionApi {
             localVarHeaderParams.Accept = produces.join(',');
         }
         let localVarFormParams: any = {};
+
+        if (userId !== undefined) {
+            localVarQueryParameters['userId'] = ObjectSerializer.serialize(userId, "string");
+        }
+
+        if (corpusId !== undefined) {
+            localVarQueryParameters['corpusId'] = ObjectSerializer.serialize(corpusId, "string");
+        }
 
         if (key !== undefined) {
             localVarQueryParameters['key'] = ObjectSerializer.serialize(key, "string");
@@ -444,177 +444,6 @@ export class SessionApi {
 
         if (json !== undefined) {
             localVarQueryParameters['json'] = ObjectSerializer.serialize(json, "string");
-        }
-
-        if (pageSize !== undefined) {
-            localVarQueryParameters['pageSize'] = ObjectSerializer.serialize(pageSize, "number");
-        }
-
-        if (pageIndex !== undefined) {
-            localVarQueryParameters['pageIndex'] = ObjectSerializer.serialize(pageIndex, "number");
-        }
-
-        (<any>Object).assign(localVarHeaderParams, options.headers);
-
-        let localVarUseFormData = false;
-
-        let localVarRequestOptions: localVarRequest.Options = {
-            method: 'GET',
-            qs: localVarQueryParameters,
-            headers: localVarHeaderParams,
-            uri: localVarPath,
-            useQuerystring: this._useQuerystring,
-            json: true,
-        };
-
-        let authenticationPromise = Promise.resolve();
-        if (this.authentications.JWT.accessToken) {
-            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
-        }
-        if (this.authentications.AccessToken.apiKey) {
-            authenticationPromise = authenticationPromise.then(() => this.authentications.AccessToken.applyToRequest(localVarRequestOptions));
-        }
-        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
-
-        let interceptorPromise = authenticationPromise;
-        for (const interceptor of this.interceptors) {
-            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
-        }
-
-        return interceptorPromise.then(() => {
-            if (Object.keys(localVarFormParams).length) {
-                if (localVarUseFormData) {
-                    (<any>localVarRequestOptions).formData = localVarFormParams;
-                } else {
-                    localVarRequestOptions.form = localVarFormParams;
-                }
-            }
-            return new Promise<{ response: http.IncomingMessage; body: SessionListResponse;  }>((resolve, reject) => {
-                localVarRequest(localVarRequestOptions, (error, response, body) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
-                            body = ObjectSerializer.deserialize(body, "SessionListResponse");
-                            resolve({ response: response, body: body });
-                        } else {
-                            reject(new HttpError(response, body, response.statusCode));
-                        }
-                    }
-                });
-            });
-        });
-    }
-    /**
-     * Paginate every session attached to at least one corpus of the caller\'s organization, newest first. The organization is resolved from the JWT, no parameter is needed.
-     * @summary List every session in the caller\'s organization
-     * @param pageSize Number of items per page.
-     * @param pageIndex Zero-based page index.
-     */
-    public async listByOrganization (pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: SessionListResponse;  }> {
-        const localVarPath = this.basePath + '/v1/session/byOrganization';
-        let localVarQueryParameters: any = {};
-        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
-        const produces = ['application/json'];
-        // give precedence to 'application/json'
-        if (produces.indexOf('application/json') >= 0) {
-            localVarHeaderParams.Accept = 'application/json';
-        } else {
-            localVarHeaderParams.Accept = produces.join(',');
-        }
-        let localVarFormParams: any = {};
-
-        if (pageSize !== undefined) {
-            localVarQueryParameters['pageSize'] = ObjectSerializer.serialize(pageSize, "number");
-        }
-
-        if (pageIndex !== undefined) {
-            localVarQueryParameters['pageIndex'] = ObjectSerializer.serialize(pageIndex, "number");
-        }
-
-        (<any>Object).assign(localVarHeaderParams, options.headers);
-
-        let localVarUseFormData = false;
-
-        let localVarRequestOptions: localVarRequest.Options = {
-            method: 'GET',
-            qs: localVarQueryParameters,
-            headers: localVarHeaderParams,
-            uri: localVarPath,
-            useQuerystring: this._useQuerystring,
-            json: true,
-        };
-
-        let authenticationPromise = Promise.resolve();
-        if (this.authentications.JWT.accessToken) {
-            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
-        }
-        if (this.authentications.AccessToken.apiKey) {
-            authenticationPromise = authenticationPromise.then(() => this.authentications.AccessToken.applyToRequest(localVarRequestOptions));
-        }
-        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
-
-        let interceptorPromise = authenticationPromise;
-        for (const interceptor of this.interceptors) {
-            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
-        }
-
-        return interceptorPromise.then(() => {
-            if (Object.keys(localVarFormParams).length) {
-                if (localVarUseFormData) {
-                    (<any>localVarRequestOptions).formData = localVarFormParams;
-                } else {
-                    localVarRequestOptions.form = localVarFormParams;
-                }
-            }
-            return new Promise<{ response: http.IncomingMessage; body: SessionListResponse;  }>((resolve, reject) => {
-                localVarRequest(localVarRequestOptions, (error, response, body) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
-                            body = ObjectSerializer.deserialize(body, "SessionListResponse");
-                            resolve({ response: response, body: body });
-                        } else {
-                            reject(new HttpError(response, body, response.statusCode));
-                        }
-                    }
-                });
-            });
-        });
-    }
-    /**
-     * Paginate the sessions opened by a given user identifier, newest first. Results are scoped to the caller\'s organization at the SQL level: only sessions attached to at least one corpus of the caller\'s org are returned, so a user identifier shared across tenants never leaks rows. Pass `corpusId` to further restrict results to sessions bound to that specific corpus.
-     * @summary List sessions owned by a user
-     * @param userId Identifier of the user (free-form string).
-     * @param corpusId Optional corpus filter. When provided, only sessions bound to this corpus are returned.
-     * @param pageSize Number of items per page.
-     * @param pageIndex Zero-based page index.
-     */
-    public async listByUser (userId: string, corpusId?: string, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: SessionListResponse;  }> {
-        const localVarPath = this.basePath + '/v1/session/byUser';
-        let localVarQueryParameters: any = {};
-        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
-        const produces = ['application/json'];
-        // give precedence to 'application/json'
-        if (produces.indexOf('application/json') >= 0) {
-            localVarHeaderParams.Accept = 'application/json';
-        } else {
-            localVarHeaderParams.Accept = produces.join(',');
-        }
-        let localVarFormParams: any = {};
-
-        // verify required parameter 'userId' is not null or undefined
-        if (userId === null || userId === undefined) {
-            throw new Error('Required parameter userId was null or undefined when calling listByUser.');
-        }
-
-        if (userId !== undefined) {
-            localVarQueryParameters['userId'] = ObjectSerializer.serialize(userId, "string");
-        }
-
-        if (corpusId !== undefined) {
-            localVarQueryParameters['corpusId'] = ObjectSerializer.serialize(corpusId, "string");
         }
 
         if (pageSize !== undefined) {
