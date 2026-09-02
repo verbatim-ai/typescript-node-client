@@ -65,7 +65,6 @@ export class DocumentPreviewUrl {
 export namespace DocumentPreviewUrl {
     export enum SizeEnum {
         Small = <any> 'SMALL',
-        Medium = <any> 'MEDIUM',
         Large = <any> 'LARGE'
     }
 }
