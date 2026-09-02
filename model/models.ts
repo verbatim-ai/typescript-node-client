@@ -8,6 +8,9 @@ export * from './agentCreateRequest';
 export * from './agentListResponse';
 export * from './agentUpdateRequest';
 export * from './attachment';
+export * from './chunk';
+export * from './chunkListResponse';
+export * from './chunkUpdateRequest';
 export * from './corpus';
 export * from './corpusCreateRequest';
 export * from './corpusCreateResponse';
@@ -64,6 +67,9 @@ import { AgentCreateRequest } from './agentCreateRequest';
 import { AgentListResponse } from './agentListResponse';
 import { AgentUpdateRequest } from './agentUpdateRequest';
 import { Attachment } from './attachment';
+import { Chunk } from './chunk';
+import { ChunkListResponse } from './chunkListResponse';
+import { ChunkUpdateRequest } from './chunkUpdateRequest';
 import { Corpus } from './corpus';
 import { CorpusCreateRequest } from './corpusCreateRequest';
 import { CorpusCreateResponse } from './corpusCreateResponse';
@@ -119,6 +125,7 @@ let enumsMap: {[index: string]: any} = {
         "DocumentPreviewUrl.SizeEnum": DocumentPreviewUrl.SizeEnum,
         "DocumentStatus.StatusEnum": DocumentStatus.StatusEnum,
         "Post.OwnerEnum": Post.OwnerEnum,
+        "PostListResponse.OrderEnum": PostListResponse.OrderEnum,
         "Usage.TimeframeEnum": Usage.TimeframeEnum,
 }
 
@@ -131,6 +138,9 @@ let typeMap: {[index: string]: any} = {
     "AgentListResponse": AgentListResponse,
     "AgentUpdateRequest": AgentUpdateRequest,
     "Attachment": Attachment,
+    "Chunk": Chunk,
+    "ChunkListResponse": ChunkListResponse,
+    "ChunkUpdateRequest": ChunkUpdateRequest,
     "Corpus": Corpus,
     "CorpusCreateRequest": CorpusCreateRequest,
     "CorpusCreateResponse": CorpusCreateResponse,

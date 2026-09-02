@@ -13,37 +13,37 @@
 import { RequestFile } from './models';
 
 /**
-* Conversation thread bound to a user and to one or more corpora.
+* One embeddable piece of a document: the text that was vectorised, where it came from, and the metadata the ingestion pipeline attached to it.
 */
-export class Session {
+export class Chunk {
     /**
-    * Unique identifier of the session (UUIDv4).
+    * Unique identifier of the chunk (UUIDv4). Same id the `attachment` records of a post point at.
     */
     'id': string;
     /**
-    * Identifier of the user who opened the session, as carried by the JWT. Stored as a free-form string so non-UUID identity providers are supported.
+    * Document the chunk was cut from.
     */
-    'userId'?: string;
+    'documentId': string;
     /**
-    * IDs of the corpora the session is bound to (UUIDv4).
+    * Corpus owning the document. Not stored on the chunk — resolved through the document — and reported here because it is half of the storage key of `body`.
     */
-    'corpusIds': Array<string>;
+    'corpusId': string;
     /**
-    * Arbitrary JSON metadata attached to the session.
+    * 1-based page numbers the chunk spans, ascending. A chunk is built from consecutive elements and may cross page boundaries, so this is a span rather than a single page. **Empty** for a chunk that belongs to no page in particular — the document summary is the usual case.
+    */
+    'pages'?: Array<number>;
+    /**
+    * MD5 of the chunk body as it was pushed to storage. Equal hashes mean equal text, which is how duplicated content is found across documents. Read-only — it is computed by the ingestion pipeline.
+    */
+    'hash'?: string;
+    /**
+    * Arbitrary JSON metadata attached by the ingestion pipeline. `kind` is the key the platform itself sets — `chunk` for a piece of the document, `summary` for the generated summary.
     */
     'metadata'?: { [key: string]: any | null; };
     /**
-    * Creation timestamp of the session (ISO-8601, UTC).
+    * The chunk text, read from object storage. Present on `GET /v1/chunk/{chunkId}`, and on the listings only when `body=true` was passed. An empty string means the row exists but its stored body does not — a broken chunk, which is one of the things this API exists to surface.
     */
-    'createdAt': Date;
-    /**
-    * Last modification of the session (ISO-8601, UTC) — moved by `PATCH /v1/session/{sessionId}`. Equal to `createdAt` on a session nobody has patched.
-    */
-    'updatedAt': Date;
-    /**
-    * @deprecated
-    */
-    'model'?: string;
+    'body'?: string;
 
     static discriminator: string | undefined = undefined;
 
@@ -54,14 +54,24 @@ export class Session {
             "type": "string"
         },
         {
-            "name": "userId",
-            "baseName": "userId",
+            "name": "documentId",
+            "baseName": "documentId",
             "type": "string"
         },
         {
-            "name": "corpusIds",
-            "baseName": "corpusIds",
-            "type": "Array<string>"
+            "name": "corpusId",
+            "baseName": "corpusId",
+            "type": "string"
+        },
+        {
+            "name": "pages",
+            "baseName": "pages",
+            "type": "Array<number>"
+        },
+        {
+            "name": "hash",
+            "baseName": "hash",
+            "type": "string"
         },
         {
             "name": "metadata",
@@ -69,23 +79,13 @@ export class Session {
             "type": "{ [key: string]: any | null; }"
         },
         {
-            "name": "createdAt",
-            "baseName": "createdAt",
-            "type": "Date"
-        },
-        {
-            "name": "updatedAt",
-            "baseName": "updatedAt",
-            "type": "Date"
-        },
-        {
-            "name": "model",
-            "baseName": "model",
+            "name": "body",
+            "baseName": "body",
             "type": "string"
         }    ];
 
     static getAttributeTypeMap() {
-        return Session.attributeTypeMap;
+        return Chunk.attributeTypeMap;
     }
 }
 

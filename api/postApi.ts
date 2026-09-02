@@ -1,6 +1,6 @@
 /**
  * Verbatim AI — GenAI Backend API
- *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 4 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (document chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -180,7 +180,7 @@ export class PostApi {
      * @summary Delete a post
      * @param postId ID of the post to delete.
      */
-    public async delete4 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
+    public async delete5 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/{postId}'
             .replace('{postId}', encodeURIComponent(String(postId)));
         let localVarQueryParameters: any = {};
@@ -196,7 +196,7 @@ export class PostApi {
 
         // verify required parameter 'postId' is not null or undefined
         if (postId === null || postId === undefined) {
-            throw new Error('Required parameter postId was null or undefined when calling delete4.');
+            throw new Error('Required parameter postId was null or undefined when calling delete5.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -330,7 +330,7 @@ export class PostApi {
      * @summary Get a post
      * @param postId ID of the post.
      */
-    public async get4 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Post;  }> {
+    public async get5 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Post;  }> {
         const localVarPath = this.basePath + '/v1/post/{postId}'
             .replace('{postId}', encodeURIComponent(String(postId)));
         let localVarQueryParameters: any = {};
@@ -346,7 +346,7 @@ export class PostApi {
 
         // verify required parameter 'postId' is not null or undefined
         if (postId === null || postId === undefined) {
-            throw new Error('Required parameter postId was null or undefined when calling get4.');
+            throw new Error('Required parameter postId was null or undefined when calling get5.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -401,13 +401,14 @@ export class PostApi {
         });
     }
     /**
-     * Paginate every post (user queries and system answers) in a session, newest first.
+     * Paginate every post of a session — the user questions and the system answers alike, interleaved in the order they were written.  **Ordering.** `order=ASC` (the default) reads the conversation, natural timestamp (lastest post first). Ordering `order=DESC` reads the conversation backwards, most recent first, which is what a client polling for what just happened wants: page `0` is the latest exchange whatever the session has grown to. `order=ASC` reads it forwards, oldest first — the transcript order, and the one to walk when rendering a whole conversation from the beginning.  Posts are ordered on `createdAt` and the ordering is closed by the post id, so walking `pageIndex` never shows the same post twice nor skips one — the two posts of a single exchange are written microseconds apart and can share a timestamp. Note the consequence of that tie: when they do share one, the question and its answer are ordered by id, which is arbitrary. Read `owner` rather than position to tell them apart.  **Paging.** `pageSize` is 1–100 and defaults to `25`; `pageIndex` is zero-based. Values outside those bounds are refused with `400`. `total` carries the number of posts in the session across every page, so a client knows how far it has to walk. Soft-deleted posts are excluded from both the page and the count.  Examples:  * `?sessionId=…` — the 25 most recent posts of the session, newest first. * `?sessionId=…&order=ASC&pageSize=50` — the conversation from its first post,   50 at a time. * `?sessionId=…&pageIndex=1` — the exchange before the latest ones. 
      * @summary List posts
      * @param sessionId ID of the session.
-     * @param pageSize Number of items per page.
+     * @param pageSize Number of items per page, 1-100.
      * @param pageIndex Zero-based page index.
+     * @param order Direction to read the session in: &#x60;DESC&#x60; newest first, &#x60;ASC&#x60; oldest first. Defaults to &#x60;DESC&#x60;.
      */
-    public async list3 (sessionId: string, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostListResponse;  }> {
+    public async list3 (sessionId: string, pageSize?: number, pageIndex?: number, order?: 'ASC' | 'DESC', options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostListResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -435,6 +436,10 @@ export class PostApi {
 
         if (pageIndex !== undefined) {
             localVarQueryParameters['pageIndex'] = ObjectSerializer.serialize(pageIndex, "number");
+        }
+
+        if (order !== undefined) {
+            localVarQueryParameters['order'] = ObjectSerializer.serialize(order, "'ASC' | 'DESC'");
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);

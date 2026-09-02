@@ -4,6 +4,7 @@ api.ts
 api/agentApi.ts
 api/apis.ts
 api/authApi.ts
+api/chunkApi.ts
 api/configurationApi.ts
 api/corpusApi.ts
 api/documentApi.ts
@@ -19,6 +20,9 @@ model/agentCreateRequest.ts
 model/agentListResponse.ts
 model/agentUpdateRequest.ts
 model/attachment.ts
+model/chunk.ts
+model/chunkListResponse.ts
+model/chunkUpdateRequest.ts
 model/corpus.ts
 model/corpusCreateRequest.ts
 model/corpusCreateResponse.ts

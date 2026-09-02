@@ -2,6 +2,8 @@ export * from './agentApi';
 import { AgentApi } from './agentApi';
 export * from './authApi';
 import { AuthApi } from './authApi';
+export * from './chunkApi';
+import { ChunkApi } from './chunkApi';
 export * from './configurationApi';
 import { ConfigurationApi } from './configurationApi';
 export * from './corpusApi';
@@ -25,4 +27,4 @@ export class HttpError extends Error {
 
 export { RequestFile } from '../model/models';
 
-export const APIS = [AgentApi, AuthApi, ConfigurationApi, CorpusApi, DocumentApi, PostApi, SessionApi, UsageApi];
+export const APIS = [AgentApi, AuthApi, ChunkApi, ConfigurationApi, CorpusApi, DocumentApi, PostApi, SessionApi, UsageApi];

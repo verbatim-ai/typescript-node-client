@@ -11,46 +11,45 @@
  */
 
 import { RequestFile } from './models';
-import { Document } from './document';
 
 /**
-* Paginated list of documents in a corpus.
+* Patch a chunk. Only the fields present in the body are applied; the rest keep their current value. `id`, `documentId`, `corpusId` and `hash` are not patchable — a chunk cannot be moved to another document, and `hash` describes the text the pipeline embedded.
 */
-export class DocumentListResponse {
+export class ChunkUpdateRequest {
     /**
-    * ID of the corpus (UUIDv4).
+    * Replacement page span: 1-based page numbers the chunk covers. Sent empty (`[]`) it clears the span, which is what a chunk belonging to no page in particular carries. Values are sorted and de-duplicated server-side, and a value below 1 is refused.
     */
-    'corpusId': string;
+    'pages'?: Array<number>;
     /**
-    * Zero-based index of the returned page.
+    * Replacement metadata. This **replaces** the object rather than merging into it — send the full map you want stored, and `{}` to clear it.
     */
-    'pageIndex': number = 0;
+    'metadata'?: { [key: string]: any | null; };
     /**
-    * Documents contained in this page, newest first.
+    * Replacement chunk text, written to object storage. **The vector is not recomputed**: after this call the stored embedding still describes the previous text, so the chunk keeps being retrieved for the old wording and answers with the new one. That is the intended behaviour for a typo or a redaction, and the wrong tool for a rewrite — re-ingest the document for that.
     */
-    'items': Array<Document>;
+    'body'?: string;
 
     static discriminator: string | undefined = undefined;
 
     static attributeTypeMap: Array<{name: string, baseName: string, type: string}> = [
         {
-            "name": "corpusId",
-            "baseName": "corpusId",
+            "name": "pages",
+            "baseName": "pages",
+            "type": "Array<number>"
+        },
+        {
+            "name": "metadata",
+            "baseName": "metadata",
+            "type": "{ [key: string]: any | null; }"
+        },
+        {
+            "name": "body",
+            "baseName": "body",
             "type": "string"
-        },
-        {
-            "name": "pageIndex",
-            "baseName": "pageIndex",
-            "type": "number"
-        },
-        {
-            "name": "items",
-            "baseName": "items",
-            "type": "Array<Document>"
         }    ];
 
     static getAttributeTypeMap() {
-        return DocumentListResponse.attributeTypeMap;
+        return ChunkUpdateRequest.attributeTypeMap;
     }
 }
 

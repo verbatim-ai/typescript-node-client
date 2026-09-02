@@ -11,24 +11,48 @@
  */
 
 import { RequestFile } from './models';
-import { Document } from './document';
+import { Chunk } from './chunk';
 
 /**
-* Paginated list of documents in a corpus.
+* Paginated list of chunks. Echoes the filters that were actually applied — a filter that was dropped as empty does not appear here.
 */
-export class DocumentListResponse {
+export class ChunkListResponse {
     /**
-    * ID of the corpus (UUIDv4).
+    * Echo of the corpus filter, when one was applied.
     */
-    'corpusId': string;
+    'corpusId'?: string;
+    /**
+    * Echo of the document filter, when one was applied.
+    */
+    'documentId'?: string;
+    /**
+    * Echo of the hash filter, when one was applied.
+    */
+    'hash'?: string;
+    /**
+    * Echo of the page filter, when one was applied.
+    */
+    'page'?: number;
+    /**
+    * Echo of the metadata fragment used to filter the listing, when applicable.
+    */
+    'metadata'?: { [key: string]: any | null; };
     /**
     * Zero-based index of the returned page.
     */
-    'pageIndex': number = 0;
+    'pageIndex': number;
     /**
-    * Documents contained in this page, newest first.
+    * Number of items requested per page.
     */
-    'items': Array<Document>;
+    'pageSize': number;
+    /**
+    * Total number of chunks matching the filters across every page.
+    */
+    'total': number;
+    /**
+    * Chunks contained in this page, in reading order: by document, then by the first page each chunk covers, then by id. `body` is present only when `body=true` was passed.
+    */
+    'items'?: Array<Chunk>;
 
     static discriminator: string | undefined = undefined;
 
@@ -39,18 +63,48 @@ export class DocumentListResponse {
             "type": "string"
         },
         {
+            "name": "documentId",
+            "baseName": "documentId",
+            "type": "string"
+        },
+        {
+            "name": "hash",
+            "baseName": "hash",
+            "type": "string"
+        },
+        {
+            "name": "page",
+            "baseName": "page",
+            "type": "number"
+        },
+        {
+            "name": "metadata",
+            "baseName": "metadata",
+            "type": "{ [key: string]: any | null; }"
+        },
+        {
             "name": "pageIndex",
             "baseName": "pageIndex",
             "type": "number"
         },
         {
+            "name": "pageSize",
+            "baseName": "pageSize",
+            "type": "number"
+        },
+        {
+            "name": "total",
+            "baseName": "total",
+            "type": "number"
+        },
+        {
             "name": "items",
             "baseName": "items",
-            "type": "Array<Document>"
+            "type": "Array<Chunk>"
         }    ];
 
     static getAttributeTypeMap() {
-        return DocumentListResponse.attributeTypeMap;
+        return ChunkListResponse.attributeTypeMap;
     }
 }
 
