@@ -9,7 +9,7 @@ api/configurationApi.ts
 api/corpusApi.ts
 api/documentApi.ts
 api/postApi.ts
-api/sessionApi.ts
+api/threadApi.ts
 api/usageApi.ts
 git_push.sh
 model/accessTokenCreateRequest.ts
@@ -47,11 +47,11 @@ model/post.ts
 model/postAttachmentResponse.ts
 model/postItemResponse.ts
 model/postListResponse.ts
-model/session.ts
 model/sessionCreateRequest.ts
-model/sessionCreateResponse.ts
-model/sessionListResponse.ts
-model/sessionUpdateRequest.ts
+model/thread.ts
+model/threadCreateResponse.ts
+model/threadListResponse.ts
+model/threadUpdateRequest.ts
 model/usage.ts
 model/usageBucket.ts
 model/usageCount.ts

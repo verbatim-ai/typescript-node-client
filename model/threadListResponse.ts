@@ -11,24 +11,40 @@
  */
 
 import { RequestFile } from './models';
-import { Document } from './document';
+import { Thread } from './thread';
 
 /**
-* Paginated list of documents in a corpus.
+* Paginated list of threads. Echoes the filter that produced it.
 */
-export class DocumentListResponse {
+export class ThreadListResponse {
     /**
-    * ID of the corpus (UUIDv4).
+    * Echo of the corpus filter, when the listing was filtered by corpus.
     */
-    'corpusId': string;
+    'corpusId'?: string;
+    /**
+    * Echo of the user filter, when the listing was filtered by user.
+    */
+    'userId'?: string;
+    /**
+    * Echo of the metadata fragment used to filter the listing, when applicable.
+    */
+    'metadata'?: { [key: string]: any | null; };
     /**
     * Zero-based index of the returned page.
     */
-    'pageIndex': number = 0;
+    'pageIndex': number;
     /**
-    * Documents contained in this page, newest first.
+    * Number of items requested per page.
     */
-    'items': Array<Document>;
+    'pageSize': number;
+    /**
+    * Total number of sessions matching the filter across every page.
+    */
+    'total': number;
+    /**
+    * Threads contained in this page, newest first.
+    */
+    'items'?: Array<Thread>;
 
     static discriminator: string | undefined = undefined;
 
@@ -39,18 +55,38 @@ export class DocumentListResponse {
             "type": "string"
         },
         {
+            "name": "userId",
+            "baseName": "userId",
+            "type": "string"
+        },
+        {
+            "name": "metadata",
+            "baseName": "metadata",
+            "type": "{ [key: string]: any | null; }"
+        },
+        {
             "name": "pageIndex",
             "baseName": "pageIndex",
             "type": "number"
         },
         {
+            "name": "pageSize",
+            "baseName": "pageSize",
+            "type": "number"
+        },
+        {
+            "name": "total",
+            "baseName": "total",
+            "type": "number"
+        },
+        {
             "name": "items",
             "baseName": "items",
-            "type": "Array<Document>"
+            "type": "Array<Thread>"
         }    ];
 
     static getAttributeTypeMap() {
-        return DocumentListResponse.attributeTypeMap;
+        return ThreadListResponse.attributeTypeMap;
     }
 }
 

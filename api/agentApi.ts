@@ -1,6 +1,6 @@
 /**
  * Verbatim AI — GenAI Backend API
- *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, threads, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Thread** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a thread. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -103,7 +103,7 @@ export class AgentApi {
      * @summary Create an agent
      * @param agentCreateRequest 
      */
-    public async create3 (agentCreateRequest: AgentCreateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Agent;  }> {
+    public async create4 (agentCreateRequest: AgentCreateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Agent;  }> {
         const localVarPath = this.basePath + '/v1/agent/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -118,7 +118,7 @@ export class AgentApi {
 
         // verify required parameter 'agentCreateRequest' is not null or undefined
         if (agentCreateRequest === null || agentCreateRequest === undefined) {
-            throw new Error('Required parameter agentCreateRequest was null or undefined when calling create3.');
+            throw new Error('Required parameter agentCreateRequest was null or undefined when calling create4.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -178,7 +178,7 @@ export class AgentApi {
      * @summary Delete an agent
      * @param agentId ID of the agent to delete.
      */
-    public async delete4 (agentId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
+    public async delete5 (agentId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
         const localVarPath = this.basePath + '/v1/agent/{agentId}'
             .replace('{agentId}', encodeURIComponent(String(agentId)));
         let localVarQueryParameters: any = {};
@@ -194,7 +194,7 @@ export class AgentApi {
 
         // verify required parameter 'agentId' is not null or undefined
         if (agentId === null || agentId === undefined) {
-            throw new Error('Required parameter agentId was null or undefined when calling delete4.');
+            throw new Error('Required parameter agentId was null or undefined when calling delete5.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -253,7 +253,7 @@ export class AgentApi {
      * @summary Get an agent
      * @param agentId ID of the agent.
      */
-    public async get4 (agentId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Agent;  }> {
+    public async get5 (agentId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Agent;  }> {
         const localVarPath = this.basePath + '/v1/agent/{agentId}'
             .replace('{agentId}', encodeURIComponent(String(agentId)));
         let localVarQueryParameters: any = {};
@@ -269,7 +269,7 @@ export class AgentApi {
 
         // verify required parameter 'agentId' is not null or undefined
         if (agentId === null || agentId === undefined) {
-            throw new Error('Required parameter agentId was null or undefined when calling get4.');
+            throw new Error('Required parameter agentId was null or undefined when calling get5.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -329,7 +329,7 @@ export class AgentApi {
      * @param pageSize Number of items per page.
      * @param pageIndex Zero-based page index.
      */
-    public async list2 (pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AgentListResponse;  }> {
+    public async list3 (pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AgentListResponse;  }> {
         const localVarPath = this.basePath + '/v1/agent/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -407,7 +407,7 @@ export class AgentApi {
      * @param agentId ID of the agent to update.
      * @param agentUpdateRequest 
      */
-    public async update4 (agentId: string, agentUpdateRequest: AgentUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Agent;  }> {
+    public async update5 (agentId: string, agentUpdateRequest: AgentUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Agent;  }> {
         const localVarPath = this.basePath + '/v1/agent/{agentId}'
             .replace('{agentId}', encodeURIComponent(String(agentId)));
         let localVarQueryParameters: any = {};
@@ -423,12 +423,12 @@ export class AgentApi {
 
         // verify required parameter 'agentId' is not null or undefined
         if (agentId === null || agentId === undefined) {
-            throw new Error('Required parameter agentId was null or undefined when calling update4.');
+            throw new Error('Required parameter agentId was null or undefined when calling update5.');
         }
 
         // verify required parameter 'agentUpdateRequest' is not null or undefined
         if (agentUpdateRequest === null || agentUpdateRequest === undefined) {
-            throw new Error('Required parameter agentUpdateRequest was null or undefined when calling update4.');
+            throw new Error('Required parameter agentUpdateRequest was null or undefined when calling update5.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);

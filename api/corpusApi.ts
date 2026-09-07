@@ -1,6 +1,6 @@
 /**
  * Verbatim AI — GenAI Backend API
- *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, threads, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Thread** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a thread. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -105,7 +105,7 @@ export class CorpusApi {
      * @summary Create a corpus
      * @param corpusCreateRequest 
      */
-    public async create1 (corpusCreateRequest: CorpusCreateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusCreateResponse;  }> {
+    public async create2 (corpusCreateRequest: CorpusCreateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusCreateResponse;  }> {
         const localVarPath = this.basePath + '/v1/corpus/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -120,7 +120,7 @@ export class CorpusApi {
 
         // verify required parameter 'corpusCreateRequest' is not null or undefined
         if (corpusCreateRequest === null || corpusCreateRequest === undefined) {
-            throw new Error('Required parameter corpusCreateRequest was null or undefined when calling create1.');
+            throw new Error('Required parameter corpusCreateRequest was null or undefined when calling create2.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -180,7 +180,7 @@ export class CorpusApi {
      * @summary Delete a corpus
      * @param corpusId ID of the corpus to delete.
      */
-    public async delete2 (corpusId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
+    public async delete3 (corpusId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
         const localVarPath = this.basePath + '/v1/corpus/{corpusId}'
             .replace('{corpusId}', encodeURIComponent(String(corpusId)));
         let localVarQueryParameters: any = {};
@@ -196,7 +196,7 @@ export class CorpusApi {
 
         // verify required parameter 'corpusId' is not null or undefined
         if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling delete2.');
+            throw new Error('Required parameter corpusId was null or undefined when calling delete3.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -255,7 +255,7 @@ export class CorpusApi {
      * @summary Get a corpus
      * @param corpusId ID of the corpus.
      */
-    public async get2 (corpusId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusItemResponse;  }> {
+    public async get3 (corpusId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusItemResponse;  }> {
         const localVarPath = this.basePath + '/v1/corpus/{corpusId}'
             .replace('{corpusId}', encodeURIComponent(String(corpusId)));
         let localVarQueryParameters: any = {};
@@ -271,7 +271,7 @@ export class CorpusApi {
 
         // verify required parameter 'corpusId' is not null or undefined
         if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling get2.');
+            throw new Error('Required parameter corpusId was null or undefined when calling get3.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -331,7 +331,7 @@ export class CorpusApi {
      * @param pageSize Number of items per page.
      * @param pageIndex Zero-based page index.
      */
-    public async list1 (pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusListResponse;  }> {
+    public async list2 (pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusListResponse;  }> {
         const localVarPath = this.basePath + '/v1/corpus/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -409,7 +409,7 @@ export class CorpusApi {
      * @param corpusId ID of the corpus to update.
      * @param corpusUpdateRequest 
      */
-    public async update2 (corpusId: string, corpusUpdateRequest: CorpusUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusUpdateResponse;  }> {
+    public async update3 (corpusId: string, corpusUpdateRequest: CorpusUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: CorpusUpdateResponse;  }> {
         const localVarPath = this.basePath + '/v1/corpus/{corpusId}'
             .replace('{corpusId}', encodeURIComponent(String(corpusId)));
         let localVarQueryParameters: any = {};
@@ -425,12 +425,12 @@ export class CorpusApi {
 
         // verify required parameter 'corpusId' is not null or undefined
         if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling update2.');
+            throw new Error('Required parameter corpusId was null or undefined when calling update3.');
         }
 
         // verify required parameter 'corpusUpdateRequest' is not null or undefined
         if (corpusUpdateRequest === null || corpusUpdateRequest === undefined) {
-            throw new Error('Required parameter corpusUpdateRequest was null or undefined when calling update2.');
+            throw new Error('Required parameter corpusUpdateRequest was null or undefined when calling update3.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);

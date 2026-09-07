@@ -1,6 +1,6 @@
 /**
  * Verbatim AI — GenAI Backend API
- *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, threads, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Thread** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a thread. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -180,7 +180,7 @@ export class PostApi {
      * @summary Delete a post
      * @param postId ID of the post to delete.
      */
-    public async delete5 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
+    public async delete6 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/{postId}'
             .replace('{postId}', encodeURIComponent(String(postId)));
         let localVarQueryParameters: any = {};
@@ -196,7 +196,7 @@ export class PostApi {
 
         // verify required parameter 'postId' is not null or undefined
         if (postId === null || postId === undefined) {
-            throw new Error('Required parameter postId was null or undefined when calling delete5.');
+            throw new Error('Required parameter postId was null or undefined when calling delete6.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -330,7 +330,7 @@ export class PostApi {
      * @summary Get a post
      * @param postId ID of the post.
      */
-    public async get5 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Post;  }> {
+    public async get6 (postId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Post;  }> {
         const localVarPath = this.basePath + '/v1/post/{postId}'
             .replace('{postId}', encodeURIComponent(String(postId)));
         let localVarQueryParameters: any = {};
@@ -346,7 +346,7 @@ export class PostApi {
 
         // verify required parameter 'postId' is not null or undefined
         if (postId === null || postId === undefined) {
-            throw new Error('Required parameter postId was null or undefined when calling get5.');
+            throw new Error('Required parameter postId was null or undefined when calling get6.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -401,14 +401,15 @@ export class PostApi {
         });
     }
     /**
-     * Paginate every post of a session — the user questions and the system answers alike, interleaved in the order they were written.  **Ordering.** `order=ASC` (the default) reads the conversation, natural timestamp (lastest post first). Ordering `order=DESC` reads the conversation backwards, most recent first, which is what a client polling for what just happened wants: page `0` is the latest exchange whatever the session has grown to. `order=ASC` reads it forwards, oldest first — the transcript order, and the one to walk when rendering a whole conversation from the beginning.  Posts are ordered on `createdAt` and the ordering is closed by the post id, so walking `pageIndex` never shows the same post twice nor skips one — the two posts of a single exchange are written microseconds apart and can share a timestamp. Note the consequence of that tie: when they do share one, the question and its answer are ordered by id, which is arbitrary. Read `owner` rather than position to tell them apart.  **Paging.** `pageSize` is 1–100 and defaults to `25`; `pageIndex` is zero-based. Values outside those bounds are refused with `400`. `total` carries the number of posts in the session across every page, so a client knows how far it has to walk. Soft-deleted posts are excluded from both the page and the count.  Examples:  * `?sessionId=…` — the 25 most recent posts of the session, newest first. * `?sessionId=…&order=ASC&pageSize=50` — the conversation from its first post,   50 at a time. * `?sessionId=…&pageIndex=1` — the exchange before the latest ones. 
+     * Paginate every post of a thread — the user questions and the system answers alike, interleaved in the order they were written.  **Ordering.** `order=ASC` (the default) reads the conversation, natural timestamp (lastest post first). Ordering `order=DESC` reads the conversation backwards, most recent first, which is what a client polling for what just happened wants: page `0` is the latest exchange whatever the thread has grown to. `order=ASC` reads it forwards, oldest first — the transcript order, and the one to walk when rendering a whole conversation from the beginning.  Posts are ordered on `createdAt` and the ordering is closed by the post id, so walking `pageIndex` never shows the same post twice nor skips one — the two posts of a single exchange are written microseconds apart and can share a timestamp. Note the consequence of that tie: when they do share one, the question and its answer are ordered by id, which is arbitrary. Read `owner` rather than position to tell them apart.  **Paging.** `pageSize` is 1–100 and defaults to `25`; `pageIndex` is zero-based. Values outside those bounds are refused with `400`. `total` carries the number of posts in the thread across every page, so a client knows how far it has to walk. Soft-deleted posts are excluded from both the page and the count.  Examples:  * `?threadId=…` — the 25 most recent posts of the thread, newest first. * `?threadId=…&order=ASC&pageSize=50` — the conversation from its first post,   50 at a time. * `?threadId=…&pageIndex=1` — the exchange before the latest ones. 
      * @summary List posts
-     * @param sessionId ID of the session.
+     * @param threadId ID of the thread.
+     * @param sessionId 
      * @param pageSize Number of items per page, 1-100.
      * @param pageIndex Zero-based page index.
-     * @param order Direction to read the session in: &#x60;DESC&#x60; newest first, &#x60;ASC&#x60; oldest first. Defaults to &#x60;DESC&#x60;.
+     * @param order Direction to read the thread in: &#x60;DESC&#x60; newest first, &#x60;ASC&#x60; oldest first. Defaults to &#x60;DESC&#x60;.
      */
-    public async list3 (sessionId: string, pageSize?: number, pageIndex?: number, order?: 'ASC' | 'DESC', options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostListResponse;  }> {
+    public async list4 (threadId: string, sessionId?: string, pageSize?: number, pageIndex?: number, order?: 'ASC' | 'DESC', options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostListResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -421,13 +422,17 @@ export class PostApi {
         }
         let localVarFormParams: any = {};
 
-        // verify required parameter 'sessionId' is not null or undefined
-        if (sessionId === null || sessionId === undefined) {
-            throw new Error('Required parameter sessionId was null or undefined when calling list3.');
+        // verify required parameter 'threadId' is not null or undefined
+        if (threadId === null || threadId === undefined) {
+            throw new Error('Required parameter threadId was null or undefined when calling list4.');
         }
 
         if (sessionId !== undefined) {
             localVarQueryParameters['sessionId'] = ObjectSerializer.serialize(sessionId, "string");
+        }
+
+        if (threadId !== undefined) {
+            localVarQueryParameters['threadId'] = ObjectSerializer.serialize(threadId, "string");
         }
 
         if (pageSize !== undefined) {
@@ -579,14 +584,15 @@ export class PostApi {
         });
     }
     /**
-     * Submit a user message to a session and run the full RAG pipeline:  1. Persist the query as a post with `owner = USER`. 2. Vectorize the query and run a cosine-similarity search against the session\'s corpora. 3. Feed the top chunks to the session\'s LLM as context. 4. Persist the answer as a post with `owner = SYSTEM`, with attachments pointing to the chunks used.  The response contains both the user post (`query`) and the system post (`answer`).  ### Choosing an agent  How much of that pipeline runs, and how, is decided by an **agent** — retrieval width, whether the chunks are re-ranked, the system instruction, how much of the conversation is replayed, and which model answers. See `GET /v1/agent/`.  Omit `agentId` and the query runs on the platform default agent, which is what every query did before agents existed. Pass one to run this single query under a different setup:  ``` GET /v1/post/q?sessionId=$SESSION_ID&body=What+is+the+refund+policy%3F&agentId=$AGENT_ID ```  The choice is **per query, not per session** — the next query on the same session is independent, so a client can escalate one question to a wider, slower agent without changing the conversation it belongs to.  The agent is then recorded on the answer as `agentId`, and only on the answer: the user\'s question is not something an agent produced. A missing `agentId` on an answer therefore means \"ran on the default agent\", not \"unknown\". Deleting an agent does not rewrite the answers it produced, so this still names an agent you have since deleted — resolving that id through `GET /v1/agent/{agentId}` answers `404`, which is the honest reading.  An `agentId` your organization cannot see — someone else\'s, or one that never existed — answers `404` and no post is written. 
+     * Submit a user message to a thread and run the full RAG pipeline:  1. Persist the query as a post with `owner = USER`. 2. Vectorize the query and run a cosine-similarity search against the thread\'s corpora. 3. Feed the top chunks to the thread\'s LLM as context. 4. Persist the answer as a post with `owner = SYSTEM`, with attachments pointing to the chunks used.  The response contains both the user post (`query`) and the system post (`answer`).  ### Choosing an agent  How much of that pipeline runs, and how, is decided by an **agent** — retrieval width, whether the chunks are re-ranked, the system instruction, how much of the conversation is replayed, and which model answers. See `GET /v1/agent/`.  Omit `agentId` and the query runs on the platform default agent, which is what every query did before agents existed. Pass one to run this single query under a different setup:  ``` GET /v1/post/q?threadId=$THREAD_ID&body=What+is+the+refund+policy%3F&agentId=$AGENT_ID ```  The choice is **per query, not per thread** — the next query on the same thread is independent, so a client can escalate one question to a wider, slower agent without changing the conversation it belongs to.  The agent is then recorded on the answer as `agentId`, and only on the answer: the user\'s question is not something an agent produced. A missing `agentId` on an answer therefore means \"ran on the default agent\", not \"unknown\". Deleting an agent does not rewrite the answers it produced, so this still names an agent you have since deleted — resolving that id through `GET /v1/agent/{agentId}` answers `404`, which is the honest reading.  An `agentId` your organization cannot see — someone else\'s, or one that never existed — answers `404` and no post is written. 
      * @summary Send a query
-     * @param sessionId ID of the session to post the query into.
+     * @param threadId ID of the thread to post the query into.
      * @param body User message to send to the LLM.
+     * @param sessionId 
      * @param lang ISO-639 language code used by the LLM. Defaults to &#x60;en&#x60;.
      * @param agentId Agent to run this query under. Omit to use the platform default agent. Must be one of the agents &#x60;GET /v1/agent/&#x60; lists for your organization.
      */
-    public async query (sessionId: string, body: string, lang?: string, agentId?: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostItemResponse;  }> {
+    public async query (threadId: string, body: string, sessionId?: string, lang?: string, agentId?: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostItemResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/q';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -599,9 +605,9 @@ export class PostApi {
         }
         let localVarFormParams: any = {};
 
-        // verify required parameter 'sessionId' is not null or undefined
-        if (sessionId === null || sessionId === undefined) {
-            throw new Error('Required parameter sessionId was null or undefined when calling query.');
+        // verify required parameter 'threadId' is not null or undefined
+        if (threadId === null || threadId === undefined) {
+            throw new Error('Required parameter threadId was null or undefined when calling query.');
         }
 
         // verify required parameter 'body' is not null or undefined
@@ -611,6 +617,10 @@ export class PostApi {
 
         if (sessionId !== undefined) {
             localVarQueryParameters['sessionId'] = ObjectSerializer.serialize(sessionId, "string");
+        }
+
+        if (threadId !== undefined) {
+            localVarQueryParameters['threadId'] = ObjectSerializer.serialize(threadId, "string");
         }
 
         if (body !== undefined) {

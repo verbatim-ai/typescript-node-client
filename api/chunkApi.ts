@@ -1,6 +1,6 @@
 /**
  * Verbatim AI — GenAI Backend API
- *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, sessions, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Session** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a session. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
+ *   ## Concepts API of the **Verbatim AI** Retrieval-Augmented-Generation (RAG) platform is built over 5 domains: - **Corpus** — a knowledge base. Holds documents, threads, and is bound to an embedding model and a summary LLM. - **Document** — a file ingested into a corpus (PDF, DOCX, HTML…). - **Chunk** — one embeddable piece of a document, produced by ingestion. The unit retrieval actually returns. - **Thread** — a conversation thread bound to one or more corpora. - **Post** — a single user query or system answer inside a thread. Answers reference attachments (the chunks used as context).  ## Authentication Two authentication methods are accepted on endpoints:  | Method | Header | Allowed HTTP methods | Use case | |--------|--------|----------------------|----------| | **JWT Bearer** | `Authorization: Bearer <jwt>` | All | Server-to-server calls with your RSA-signed JWT | | **Access Token** | `X-Access-Token: <token>` | **Defined by the scope of the token** | Short-lived tokens issued by `POST /v1/access-token/` |  ## API status Get a fresh status from our [API Status dashboard](https://verbatim-ai.openstatus.dev/). Events, maintenance schedules and incidents will be reported in this page.  ## Conventions - **Pagination** — list endpoints accept `pageSize` (default `25`) and `pageIndex` (default `0`). - **IDs** — all resource identifiers are UUIDv4 strings. - **Timestamps** — ISO-8601 (`2026-04-23T04:06:51Z`). - **Errors** — non-2xx responses return a JSON body matching the `Error` schema. --- 
  *
  * The version of the OpenAPI document: v1
  * Contact: contact@verbatim-ai.com
@@ -102,7 +102,7 @@ export class ChunkApi {
      * @summary Delete a chunk
      * @param chunkId ID of the chunk to delete.
      */
-    public async delete3 (chunkId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
+    public async delete4 (chunkId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
         const localVarPath = this.basePath + '/v1/chunk/{chunkId}'
             .replace('{chunkId}', encodeURIComponent(String(chunkId)));
         let localVarQueryParameters: any = {};
@@ -118,7 +118,7 @@ export class ChunkApi {
 
         // verify required parameter 'chunkId' is not null or undefined
         if (chunkId === null || chunkId === undefined) {
-            throw new Error('Required parameter chunkId was null or undefined when calling delete3.');
+            throw new Error('Required parameter chunkId was null or undefined when calling delete4.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -177,7 +177,7 @@ export class ChunkApi {
      * @summary Get a chunk
      * @param chunkId ID of the chunk.
      */
-    public async get3 (chunkId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Chunk;  }> {
+    public async get4 (chunkId: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Chunk;  }> {
         const localVarPath = this.basePath + '/v1/chunk/{chunkId}'
             .replace('{chunkId}', encodeURIComponent(String(chunkId)));
         let localVarQueryParameters: any = {};
@@ -193,7 +193,7 @@ export class ChunkApi {
 
         // verify required parameter 'chunkId' is not null or undefined
         if (chunkId === null || chunkId === undefined) {
-            throw new Error('Required parameter chunkId was null or undefined when calling get3.');
+            throw new Error('Required parameter chunkId was null or undefined when calling get4.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);
@@ -254,7 +254,7 @@ export class ChunkApi {
      * @param pageSize Number of items per page, 1-100 — or 1-25 when &#x60;body&#x3D;true&#x60;.
      * @param pageIndex Zero-based page index.
      */
-    public async list6 (body?: boolean, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: ChunkListResponse;  }> {
+    public async list7 (body?: boolean, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: ChunkListResponse;  }> {
         const localVarPath = this.basePath + '/v1/chunk/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -344,7 +344,7 @@ export class ChunkApi {
      * @param pageSize Number of items per page, 1-100 — or 1-25 when &#x60;body&#x3D;true&#x60;.
      * @param pageIndex Zero-based page index.
      */
-    public async search2 (corpusId?: string, documentId?: string, hash?: string, page?: number, key?: string, value?: string, json?: string, body?: boolean, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: ChunkListResponse;  }> {
+    public async search3 (corpusId?: string, documentId?: string, hash?: string, page?: number, key?: string, value?: string, json?: string, body?: boolean, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: ChunkListResponse;  }> {
         const localVarPath = this.basePath + '/v1/chunk/q';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -454,7 +454,7 @@ export class ChunkApi {
      * @param chunkId ID of the chunk to update.
      * @param chunkUpdateRequest 
      */
-    public async update3 (chunkId: string, chunkUpdateRequest: ChunkUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Chunk;  }> {
+    public async update4 (chunkId: string, chunkUpdateRequest: ChunkUpdateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Chunk;  }> {
         const localVarPath = this.basePath + '/v1/chunk/{chunkId}'
             .replace('{chunkId}', encodeURIComponent(String(chunkId)));
         let localVarQueryParameters: any = {};
@@ -470,12 +470,12 @@ export class ChunkApi {
 
         // verify required parameter 'chunkId' is not null or undefined
         if (chunkId === null || chunkId === undefined) {
-            throw new Error('Required parameter chunkId was null or undefined when calling update3.');
+            throw new Error('Required parameter chunkId was null or undefined when calling update4.');
         }
 
         // verify required parameter 'chunkUpdateRequest' is not null or undefined
         if (chunkUpdateRequest === null || chunkUpdateRequest === undefined) {
-            throw new Error('Required parameter chunkUpdateRequest was null or undefined when calling update3.');
+            throw new Error('Required parameter chunkUpdateRequest was null or undefined when calling update4.');
         }
 
         (<any>Object).assign(localVarHeaderParams, options.headers);

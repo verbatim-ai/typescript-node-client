@@ -12,8 +12,8 @@ export * from './documentApi';
 import { DocumentApi } from './documentApi';
 export * from './postApi';
 import { PostApi } from './postApi';
-export * from './sessionApi';
-import { SessionApi } from './sessionApi';
+export * from './threadApi';
+import { ThreadApi } from './threadApi';
 export * from './usageApi';
 import { UsageApi } from './usageApi';
 import * as http from 'http';
@@ -27,4 +27,4 @@ export class HttpError extends Error {
 
 export { RequestFile } from '../model/models';
 
-export const APIS = [AgentApi, AuthApi, ChunkApi, ConfigurationApi, CorpusApi, DocumentApi, PostApi, SessionApi, UsageApi];
+export const APIS = [AgentApi, AuthApi, ChunkApi, ConfigurationApi, CorpusApi, DocumentApi, PostApi, ThreadApi, UsageApi];

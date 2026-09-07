@@ -34,11 +34,11 @@ export * from './post';
 export * from './postAttachmentResponse';
 export * from './postItemResponse';
 export * from './postListResponse';
-export * from './session';
 export * from './sessionCreateRequest';
-export * from './sessionCreateResponse';
-export * from './sessionListResponse';
-export * from './sessionUpdateRequest';
+export * from './thread';
+export * from './threadCreateResponse';
+export * from './threadListResponse';
+export * from './threadUpdateRequest';
 export * from './usage';
 export * from './usageBucket';
 export * from './usageCount';
@@ -93,11 +93,11 @@ import { Post } from './post';
 import { PostAttachmentResponse } from './postAttachmentResponse';
 import { PostItemResponse } from './postItemResponse';
 import { PostListResponse } from './postListResponse';
-import { Session } from './session';
 import { SessionCreateRequest } from './sessionCreateRequest';
-import { SessionCreateResponse } from './sessionCreateResponse';
-import { SessionListResponse } from './sessionListResponse';
-import { SessionUpdateRequest } from './sessionUpdateRequest';
+import { Thread } from './thread';
+import { ThreadCreateResponse } from './threadCreateResponse';
+import { ThreadListResponse } from './threadListResponse';
+import { ThreadUpdateRequest } from './threadUpdateRequest';
 import { Usage } from './usage';
 import { UsageBucket } from './usageBucket';
 import { UsageCount } from './usageCount';
@@ -164,11 +164,11 @@ let typeMap: {[index: string]: any} = {
     "PostAttachmentResponse": PostAttachmentResponse,
     "PostItemResponse": PostItemResponse,
     "PostListResponse": PostListResponse,
-    "Session": Session,
     "SessionCreateRequest": SessionCreateRequest,
-    "SessionCreateResponse": SessionCreateResponse,
-    "SessionListResponse": SessionListResponse,
-    "SessionUpdateRequest": SessionUpdateRequest,
+    "Thread": Thread,
+    "ThreadCreateResponse": ThreadCreateResponse,
+    "ThreadListResponse": ThreadListResponse,
+    "ThreadUpdateRequest": ThreadUpdateRequest,
     "Usage": Usage,
     "UsageBucket": UsageBucket,
     "UsageCount": UsageCount,

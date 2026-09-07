@@ -12,4 +12,9 @@
 .idea/typescript-node.iml
 .idea/vcs.xml
 README.md
+api/sessionApi.ts
+model/session.ts
+model/sessionCreateResponse.ts
+model/sessionListResponse.ts
+model/sessionUpdateRequest.ts
 package-lock.json

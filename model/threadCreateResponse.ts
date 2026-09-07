@@ -11,46 +11,81 @@
  */
 
 import { RequestFile } from './models';
-import { Document } from './document';
 
 /**
-* Paginated list of documents in a corpus.
+* Acknowledgement returned after opening a new thread.
 */
-export class DocumentListResponse {
+export class ThreadCreateResponse {
     /**
-    * ID of the corpus (UUIDv4).
+    * ID of the newly created thread (UUIDv4).
     */
-    'corpusId': string;
+    'id': string;
     /**
-    * Zero-based index of the returned page.
+    * Identifier of the user who opened the thread (echo of the JWT subject).
     */
-    'pageIndex': number = 0;
+    'userId'?: string;
     /**
-    * Documents contained in this page, newest first.
+    * IDs of the corpora the thread is bound to (UUIDv4).
     */
-    'items': Array<Document>;
+    'corpusId': Array<string>;
+    /**
+    * @deprecated
+    */
+    'model'?: string;
+    /**
+    * Arbitrary JSON metadata attached to the thread.
+    */
+    'metadata'?: { [key: string]: any | null; };
+    /**
+    * Creation timestamp of the thread (ISO-8601, UTC).
+    */
+    'createdAt': Date;
+    /**
+    * Last modification of the thread (ISO-8601, UTC). Equal to `createdAt` on a thread that has just been created.
+    */
+    'updatedAt': Date;
 
     static discriminator: string | undefined = undefined;
 
     static attributeTypeMap: Array<{name: string, baseName: string, type: string}> = [
         {
-            "name": "corpusId",
-            "baseName": "corpusId",
+            "name": "id",
+            "baseName": "id",
             "type": "string"
         },
         {
-            "name": "pageIndex",
-            "baseName": "pageIndex",
-            "type": "number"
+            "name": "userId",
+            "baseName": "userId",
+            "type": "string"
         },
         {
-            "name": "items",
-            "baseName": "items",
-            "type": "Array<Document>"
+            "name": "corpusId",
+            "baseName": "corpusId",
+            "type": "Array<string>"
+        },
+        {
+            "name": "model",
+            "baseName": "model",
+            "type": "string"
+        },
+        {
+            "name": "metadata",
+            "baseName": "metadata",
+            "type": "{ [key: string]: any | null; }"
+        },
+        {
+            "name": "createdAt",
+            "baseName": "createdAt",
+            "type": "Date"
+        },
+        {
+            "name": "updatedAt",
+            "baseName": "updatedAt",
+            "type": "Date"
         }    ];
 
     static getAttributeTypeMap() {
-        return DocumentListResponse.attributeTypeMap;
+        return ThreadCreateResponse.attributeTypeMap;
     }
 }
 

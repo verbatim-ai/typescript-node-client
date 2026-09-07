@@ -11,46 +11,27 @@
  */
 
 import { RequestFile } from './models';
-import { Document } from './document';
 
 /**
-* Paginated list of documents in a corpus.
+* Payload to patch a session. Only the fields you set are updated; omit a field to leave it unchanged.
 */
-export class DocumentListResponse {
+export class ThreadUpdateRequest {
     /**
-    * ID of the corpus (UUIDv4).
+    * New JSON metadata. When provided, **replaces** the existing metadata map; omit to keep it unchanged.
     */
-    'corpusId': string;
-    /**
-    * Zero-based index of the returned page.
-    */
-    'pageIndex': number = 0;
-    /**
-    * Documents contained in this page, newest first.
-    */
-    'items': Array<Document>;
+    'metadata'?: { [key: string]: any | null; };
 
     static discriminator: string | undefined = undefined;
 
     static attributeTypeMap: Array<{name: string, baseName: string, type: string}> = [
         {
-            "name": "corpusId",
-            "baseName": "corpusId",
-            "type": "string"
-        },
-        {
-            "name": "pageIndex",
-            "baseName": "pageIndex",
-            "type": "number"
-        },
-        {
-            "name": "items",
-            "baseName": "items",
-            "type": "Array<Document>"
+            "name": "metadata",
+            "baseName": "metadata",
+            "type": "{ [key: string]: any | null; }"
         }    ];
 
     static getAttributeTypeMap() {
-        return DocumentListResponse.attributeTypeMap;
+        return ThreadUpdateRequest.attributeTypeMap;
     }
 }
 
