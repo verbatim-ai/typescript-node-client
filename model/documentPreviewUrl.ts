@@ -17,7 +17,7 @@ import { RequestFile } from './models';
 */
 export class DocumentPreviewUrl {
     /**
-    * Zero-based page index this preview represents.
+    * One-based page index this preview represents.
     */
     'page'?: number;
     /**
