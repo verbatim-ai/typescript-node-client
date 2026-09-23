@@ -21,11 +21,11 @@ export class DocumentUpdateRequest {
     */
     'filename'?: string;
     /**
-    * New creation date of the **source** document (ISO-8601, UTC). Describes the original file, not the platform row — `createdAt` is not affected. Omit to keep the current value.
+    * New creation date of the **source** document (ISO-8601, UTC). Describes the original file, not the platform row — `createdAt` is not affected. Omit to keep the current value. This is how you correct a date the platform had to guess at: a document uploaded without `docCreate` carries the upload instant, not null. `null` cannot be stored — sending it means *leave it alone*, not *clear it*.
     */
     'docCreate'?: Date;
     /**
-    * New last-modified date of the **source** document (ISO-8601, UTC). Describes the original file, not the platform row — `updatedAt` is not affected. Omit to keep the current value.
+    * New last-modified date of the **source** document (ISO-8601, UTC). Describes the original file, not the platform row — `updatedAt` is not affected. Omit to keep the current value; it cannot be cleared, on the same terms as `docCreate`. Note that `PUT /v1/doc/{id}/init` re-stamps it on its own, so patch it *after* replacing the content, not before.
     */
     'docUpdate'?: Date;
     /**

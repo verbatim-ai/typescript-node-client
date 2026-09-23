@@ -41,11 +41,11 @@ export class DocumentInitRequest {
     */
     'userId'?: string;
     /**
-    * Original creation date of the source document (ISO-8601, UTC).
+    * Creation date of the **source** document — the file you are uploading, not the platform row (ISO-8601, UTC). Optional: omit it when you have no file metadata to read it from, and the upload instant is stored instead. The stored value is never null, so the response always carries a date; correct it later with `PATCH /v1/doc/{id}`.
     */
     'docCreate'?: Date;
     /**
-    * Original last-modified date of the source document (ISO-8601, UTC).
+    * Last-modified date of the **source** document (ISO-8601, UTC). Optional, with the same fallback as `docCreate` — and the two fall back independently, so sending one does not fill in the other.
     */
     'docUpdate'?: Date;
     /**

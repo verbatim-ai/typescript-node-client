@@ -65,13 +65,13 @@ export class Document {
     */
     'chunk'?: { [key: string]: any | null; };
     /**
-    * Original creation date of the source document (ISO-8601, UTC). Falls back to upload time when unknown.
+    * Creation date of the **source** document — the file — as opposed to `createdAt`, which is when the platform first saw it (ISO-8601, UTC). Always present: when the upload declared no date, this is the upload instant.
     */
-    'docCreate'?: Date;
+    'docCreate': Date;
     /**
-    * Original last-modified date of the source document (ISO-8601, UTC). Falls back to upload time when unknown.
+    * Last-modified date of the **source** document (ISO-8601, UTC), on the same terms as `docCreate`. Always present, and the one of the two that moves: replacing the content with `PUT /v1/doc/{id}/init` re-stamps it with the moment of that call. Correct it with `PATCH /v1/doc/{id}` when the new file\'s real modification date is known.
     */
-    'docUpdate'?: Date;
+    'docUpdate': Date;
     /**
     * Date the document was uploaded to the platform (ISO-8601, UTC).
     */
