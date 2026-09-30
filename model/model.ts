@@ -11,48 +11,54 @@
  */
 
 import { RequestFile } from './models';
-import { Model } from './model';
 
 /**
-* LLM models supported by the platform, everything a client needs to let someone choose one.  Not paginated — the catalog is a handful of entries and `models` always holds all of them, in the order the platform means them to be offered. `total` is their number, so a client can size a picker without walking the list.  `items` is the same list reduced to its identifiers, kept for clients written against the first version of this endpoint. It is deprecated and derived from `models`, so the two can never disagree: read `models[].id` instead. 
+* One LLM the platform is configured to serve, with what a client needs to present it.  `id` is the contract: it is the value an agent\'s `baseModel` or `rerankModel` is set to, and the only field the server reads back. The other three exist to be rendered — a picker built from this endpoint shows `name`, `description` and `iconUrl` and sends `id`.  `name` and `description` are editorial and may be reworded at any time; do not match on them. Which concrete provider model an `id` runs on is deliberately absent — it changes under you without the `id` changing, which is the point of naming the alias. 
 */
-export class ModelListResponse {
+export class Model {
     /**
-    * Number of models in `models`.
+    * Identifier of the model — the value to send anywhere a model is named.
     */
-    'total': number;
+    'id': string;
     /**
-    * Supported models, in the order they are meant to be offered. The first is the one to preselect.
+    * Display name, for a model picker or the header of an answer.
     */
-    'models'?: Array<Model>;
+    'name'?: string;
     /**
-    * **Deprecated** — identifiers of the supported models, without the display fields. Superseded by `models[].id`, which carries the same values in the same order. Still served for existing clients; it will be removed in a future release.
-    *
-    * @deprecated
+    * One-line description of what the model is good for, for a tooltip or a line under the name.
     */
-    'items'?: Array<string>;
+    'description'?: string;
+    /**
+    * Absolute URL of the model\'s icon — the provider\'s own logo, an SVG. Hosted off-platform, so render it as a remote image and keep a fallback for the request failing.
+    */
+    'iconUrl'?: string;
 
     static discriminator: string | undefined = undefined;
 
     static attributeTypeMap: Array<{name: string, baseName: string, type: string}> = [
         {
-            "name": "total",
-            "baseName": "total",
-            "type": "number"
+            "name": "id",
+            "baseName": "id",
+            "type": "string"
         },
         {
-            "name": "models",
-            "baseName": "models",
-            "type": "Array<Model>"
+            "name": "name",
+            "baseName": "name",
+            "type": "string"
         },
         {
-            "name": "items",
-            "baseName": "items",
-            "type": "Array<string>"
+            "name": "description",
+            "baseName": "description",
+            "type": "string"
+        },
+        {
+            "name": "iconUrl",
+            "baseName": "iconUrl",
+            "type": "string"
         }    ];
 
     static getAttributeTypeMap() {
-        return ModelListResponse.attributeTypeMap;
+        return Model.attributeTypeMap;
     }
 }
 

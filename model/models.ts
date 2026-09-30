@@ -28,6 +28,7 @@ export * from './documentPreviewUrls';
 export * from './documentSearchResponse';
 export * from './documentStatus';
 export * from './documentUpdateRequest';
+export * from './model';
 export * from './modelError';
 export * from './modelListResponse';
 export * from './post';
@@ -87,6 +88,7 @@ import { DocumentPreviewUrls } from './documentPreviewUrls';
 import { DocumentSearchResponse } from './documentSearchResponse';
 import { DocumentStatus } from './documentStatus';
 import { DocumentUpdateRequest } from './documentUpdateRequest';
+import { Model } from './model';
 import { ModelError } from './modelError';
 import { ModelListResponse } from './modelListResponse';
 import { Post } from './post';
@@ -158,6 +160,7 @@ let typeMap: {[index: string]: any} = {
     "DocumentSearchResponse": DocumentSearchResponse,
     "DocumentStatus": DocumentStatus,
     "DocumentUpdateRequest": DocumentUpdateRequest,
+    "Model": Model,
     "ModelError": ModelError,
     "ModelListResponse": ModelListResponse,
     "Post": Post,

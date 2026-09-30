@@ -95,7 +95,7 @@ export class ConfigurationApi {
     }
 
     /**
-     * Return the identifiers of the LLM models the platform is configured to serve. The list is driven by the `app.ai.model` server property and is the same for every caller.
+     * Return the LLM models the platform is configured to serve, each with the `id` to send and the display name, description and icon URL to present it with.  The list is the same for every caller and is not paginated: `models` holds the whole catalog, in the order it is meant to be offered, and `total` is how many that is. Preselect the first entry.  `items` repeats the same ids without the display fields, for clients written against the first version of this endpoint. It is deprecated — read `models[].id`. 
      * @summary List supported LLM models
      */
     public async list6 (options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: ModelListResponse;  }> {
