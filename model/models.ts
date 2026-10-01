@@ -19,6 +19,7 @@ export * from './corpusListResponse';
 export * from './corpusUpdateRequest';
 export * from './corpusUpdateResponse';
 export * from './document';
+export * from './documentConvertResponse';
 export * from './documentDownloadUrl';
 export * from './documentInit';
 export * from './documentInitRequest';
@@ -79,6 +80,7 @@ import { CorpusListResponse } from './corpusListResponse';
 import { CorpusUpdateRequest } from './corpusUpdateRequest';
 import { CorpusUpdateResponse } from './corpusUpdateResponse';
 import { Document } from './document';
+import { DocumentConvertResponse } from './documentConvertResponse';
 import { DocumentDownloadUrl } from './documentDownloadUrl';
 import { DocumentInit } from './documentInit';
 import { DocumentInitRequest } from './documentInitRequest';
@@ -151,6 +153,7 @@ let typeMap: {[index: string]: any} = {
     "CorpusUpdateRequest": CorpusUpdateRequest,
     "CorpusUpdateResponse": CorpusUpdateResponse,
     "Document": Document,
+    "DocumentConvertResponse": DocumentConvertResponse,
     "DocumentDownloadUrl": DocumentDownloadUrl,
     "DocumentInit": DocumentInit,
     "DocumentInitRequest": DocumentInitRequest,

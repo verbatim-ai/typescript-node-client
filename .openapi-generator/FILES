@@ -31,6 +31,7 @@ model/corpusListResponse.ts
 model/corpusUpdateRequest.ts
 model/corpusUpdateResponse.ts
 model/document.ts
+model/documentConvertResponse.ts
 model/documentDownloadUrl.ts
 model/documentInit.ts
 model/documentInitRequest.ts

@@ -17,6 +17,7 @@ import http from 'http';
 /* tslint:disable:no-unused-locals */
 import { AckResponse } from '../model/ackResponse';
 import { Document } from '../model/document';
+import { DocumentConvertResponse } from '../model/documentConvertResponse';
 import { DocumentDownloadUrl } from '../model/documentDownloadUrl';
 import { DocumentInit } from '../model/documentInit';
 import { DocumentInitRequest } from '../model/documentInitRequest';
@@ -169,6 +170,86 @@ export class DocumentApi {
                     } else {
                         if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
                             body = ObjectSerializer.deserialize(body, "Document");
+                            resolve({ response: response, body: body });
+                        } else {
+                            reject(new HttpError(response, body, response.statusCode));
+                        }
+                    }
+                });
+            });
+        });
+    }
+    /**
+     * Convert a document — PDF, Word, Excel, PowerPoint, OpenDocument, EPUB, HTML, e-mail, … — to Markdown and return it in the response, typically to feed it to an LLM as context.  **Synchronous and stateless.** The conversion runs during the call and nothing is kept: no document is created, no corpus is involved, nothing is ingested. Use the `init` → `commit` flow to add a document to a corpus.  **The body is the file itself**, sent as `application/octet-stream` — not JSON, not multipart. This is the one endpoint the file bytes go through, so it is bounded: a body above 25 MB is refused with `413`.  **No format to declare.** The format is detected from the file\'s content; `filename` is optional and only helps when the content alone is ambiguous — plain-text formats such as Markdown or CSV. The format found is returned in `contentType`.  Readable: PDF (with a text layer), `.docx` `.doc` `.xlsx` `.xls` `.pptx` `.ppt`, `.odt` `.ods` `.odp`, `.rtf`, `.epub`, `.html`, `.xml`, `.md`, `.txt`, `.csv`, `.eml` `.msg`, and most other office and text formats. A format no parser recognises — an image, an archive of unknown content, random bytes — answers `415`.  **Output.** Markdown with headings, emphasis, lists and pipe tables; a spreadsheet gives one section per sheet. Images are not described, so a scanned PDF converts to no text: the call still succeeds, with an empty `markdown` and a `warnings` entry saying so. `warnings` also reports parts the converter skipped — a `200` with warnings is still a usable conversion.  A document that cannot be read — corrupt, truncated, password-protected — is a `400` explaining why.  Scope: `doc:create`. 
+     * @summary Convert a document to Markdown
+     * @param body The document\&#39;s raw bytes.
+     * @param filename Original file name. Its extension helps detect the format of plain-text files (&#x60;.md&#x60;, &#x60;.csv&#x60;, …); it is echoed back in the response.
+     */
+    public async convert (body: RequestFile, filename?: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentConvertResponse;  }> {
+        const localVarPath = this.basePath + '/v1/doc/convert';
+        let localVarQueryParameters: any = {};
+        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
+        const produces = ['application/json'];
+        // give precedence to 'application/json'
+        if (produces.indexOf('application/json') >= 0) {
+            localVarHeaderParams.Accept = 'application/json';
+        } else {
+            localVarHeaderParams.Accept = produces.join(',');
+        }
+        let localVarFormParams: any = {};
+
+        // verify required parameter 'body' is not null or undefined
+        if (body === null || body === undefined) {
+            throw new Error('Required parameter body was null or undefined when calling convert.');
+        }
+
+        if (filename !== undefined) {
+            localVarQueryParameters['filename'] = ObjectSerializer.serialize(filename, "string");
+        }
+
+        (<any>Object).assign(localVarHeaderParams, options.headers);
+
+        let localVarUseFormData = false;
+
+        let localVarRequestOptions: localVarRequest.Options = {
+            method: 'POST',
+            qs: localVarQueryParameters,
+            headers: localVarHeaderParams,
+            uri: localVarPath,
+            useQuerystring: this._useQuerystring,
+            json: true,
+            body: ObjectSerializer.serialize(body, "RequestFile")
+        };
+
+        let authenticationPromise = Promise.resolve();
+        if (this.authentications.JWT.accessToken) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
+        }
+        if (this.authentications.AccessToken.apiKey) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.AccessToken.applyToRequest(localVarRequestOptions));
+        }
+        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
+
+        let interceptorPromise = authenticationPromise;
+        for (const interceptor of this.interceptors) {
+            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
+        }
+
+        return interceptorPromise.then(() => {
+            if (Object.keys(localVarFormParams).length) {
+                if (localVarUseFormData) {
+                    (<any>localVarRequestOptions).formData = localVarFormParams;
+                } else {
+                    localVarRequestOptions.form = localVarFormParams;
+                }
+            }
+            return new Promise<{ response: http.IncomingMessage; body: DocumentConvertResponse;  }>((resolve, reject) => {
+                localVarRequest(localVarRequestOptions, (error, response, body) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
+                            body = ObjectSerializer.deserialize(body, "DocumentConvertResponse");
                             resolve({ response: response, body: body });
                         } else {
                             reject(new HttpError(response, body, response.statusCode));
