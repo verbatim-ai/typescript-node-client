@@ -14,6 +14,11 @@ api/usageApi.ts
 git_push.sh
 model/accessTokenCreateRequest.ts
 model/accessTokenCreateResponse.ts
+model/accessTokenItem.ts
+model/accessTokenListResponse.ts
+model/accessTokenScopeAction.ts
+model/accessTokenScopeDomain.ts
+model/accessTokenScopesResponse.ts
 model/ackResponse.ts
 model/agent.ts
 model/agentCreateRequest.ts

@@ -2,6 +2,11 @@ import localVarRequest from 'request';
 
 export * from './accessTokenCreateRequest';
 export * from './accessTokenCreateResponse';
+export * from './accessTokenItem';
+export * from './accessTokenListResponse';
+export * from './accessTokenScopeAction';
+export * from './accessTokenScopeDomain';
+export * from './accessTokenScopesResponse';
 export * from './ackResponse';
 export * from './agent';
 export * from './agentCreateRequest';
@@ -63,6 +68,11 @@ export type RequestFile = string | Buffer | fs.ReadStream | RequestDetailedFile;
 
 import { AccessTokenCreateRequest } from './accessTokenCreateRequest';
 import { AccessTokenCreateResponse } from './accessTokenCreateResponse';
+import { AccessTokenItem } from './accessTokenItem';
+import { AccessTokenListResponse } from './accessTokenListResponse';
+import { AccessTokenScopeAction } from './accessTokenScopeAction';
+import { AccessTokenScopeDomain } from './accessTokenScopeDomain';
+import { AccessTokenScopesResponse } from './accessTokenScopesResponse';
 import { AckResponse } from './ackResponse';
 import { Agent } from './agent';
 import { AgentCreateRequest } from './agentCreateRequest';
@@ -136,6 +146,11 @@ let enumsMap: {[index: string]: any} = {
 let typeMap: {[index: string]: any} = {
     "AccessTokenCreateRequest": AccessTokenCreateRequest,
     "AccessTokenCreateResponse": AccessTokenCreateResponse,
+    "AccessTokenItem": AccessTokenItem,
+    "AccessTokenListResponse": AccessTokenListResponse,
+    "AccessTokenScopeAction": AccessTokenScopeAction,
+    "AccessTokenScopeDomain": AccessTokenScopeDomain,
+    "AccessTokenScopesResponse": AccessTokenScopesResponse,
     "AckResponse": AckResponse,
     "Agent": Agent,
     "AgentCreateRequest": AgentCreateRequest,

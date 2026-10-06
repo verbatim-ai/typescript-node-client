@@ -568,7 +568,7 @@ export class DocumentApi {
      * @param pageSize Number of items per page, 1-100.
      * @param pageIndex Zero-based page index.
      */
-    public async list5 (corpusId: string, status?: 'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED', tags?: Array<string>, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentListResponse;  }> {
+    public async list6 (corpusId: string, status?: 'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED', tags?: Array<string>, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentListResponse;  }> {
         const localVarPath = this.basePath + '/v1/doc/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -583,7 +583,7 @@ export class DocumentApi {
 
         // verify required parameter 'corpusId' is not null or undefined
         if (corpusId === null || corpusId === undefined) {
-            throw new Error('Required parameter corpusId was null or undefined when calling list5.');
+            throw new Error('Required parameter corpusId was null or undefined when calling list6.');
         }
 
         if (corpusId !== undefined) {

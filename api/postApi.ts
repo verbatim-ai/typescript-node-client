@@ -409,7 +409,7 @@ export class PostApi {
      * @param pageIndex Zero-based page index.
      * @param order Direction to read the thread in: &#x60;DESC&#x60; newest first, &#x60;ASC&#x60; oldest first. Defaults to &#x60;DESC&#x60;.
      */
-    public async list4 (threadId: string, sessionId?: string, pageSize?: number, pageIndex?: number, order?: 'ASC' | 'DESC', options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostListResponse;  }> {
+    public async list5 (threadId: string, sessionId?: string, pageSize?: number, pageIndex?: number, order?: 'ASC' | 'DESC', options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: PostListResponse;  }> {
         const localVarPath = this.basePath + '/v1/post/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -424,7 +424,7 @@ export class PostApi {
 
         // verify required parameter 'threadId' is not null or undefined
         if (threadId === null || threadId === undefined) {
-            throw new Error('Required parameter threadId was null or undefined when calling list4.');
+            throw new Error('Required parameter threadId was null or undefined when calling list5.');
         }
 
         if (sessionId !== undefined) {

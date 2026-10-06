@@ -12,35 +12,74 @@
 
 import { RequestFile } from './models';
 
-export class AccessTokenCreateRequest {
+/**
+* One access token as a listing shows it: every stored attribute, except that the token value is cut down to its first characters. The full value is only ever returned once, by the create call.
+*/
+export class AccessTokenItem {
     /**
-    * Token validity in seconds. Defaults to 3600 (1 hour); at least 10, and at most the platform ceiling (`app.access-token.max-ttl-seconds`, 86400 by default).
+    * Id of the token. Pass it to `DELETE /v1/auth/access-token/id/{id}` to revoke the token.
     */
-    'ttl'?: number;
+    'id'?: string;
     /**
-    * Optional label identifying the system that requested the token.
+    * First characters of the token value followed by `...` — enough to recognise a token, never enough to use it.
+    */
+    'token'?: string;
+    /**
+    * Organization the token belongs to.
+    */
+    'orgId'?: string;
+    /**
+    * Creation timestamp (ISO-8601, UTC).
+    */
+    'createdAt'?: Date;
+    /**
+    * Expiry timestamp (ISO-8601, UTC). An expired token stays listed until revoked, but no longer authenticates.
+    */
+    'expiresAt'?: Date;
+    /**
+    * Label of the system that requested the token, as given at creation.
     */
     'issuer'?: string;
     /**
-    * Optional email of the end-user the token is issued for.
+    * Email of the end-user the token was issued for, as given at creation.
     */
     'email'?: string;
     /**
-    * Optional user identifier.
+    * User identifier the token was issued for, as given at creation.
     */
     'userId'?: string;
     /**
-    * Mandatory, non-empty list of permission scopes the token carries, each `DOMAIN:ACTION`. `GET /v1/auth/access-token/scopes` lists every valid entry.
+    * Permission scopes the token carries.
     */
-    'scope': Array<string>;
+    'scope'?: Array<string>;
 
     static discriminator: string | undefined = undefined;
 
     static attributeTypeMap: Array<{name: string, baseName: string, type: string}> = [
         {
-            "name": "ttl",
-            "baseName": "ttl",
-            "type": "number"
+            "name": "id",
+            "baseName": "id",
+            "type": "string"
+        },
+        {
+            "name": "token",
+            "baseName": "token",
+            "type": "string"
+        },
+        {
+            "name": "orgId",
+            "baseName": "orgId",
+            "type": "string"
+        },
+        {
+            "name": "createdAt",
+            "baseName": "createdAt",
+            "type": "Date"
+        },
+        {
+            "name": "expiresAt",
+            "baseName": "expiresAt",
+            "type": "Date"
         },
         {
             "name": "issuer",
@@ -64,7 +103,7 @@ export class AccessTokenCreateRequest {
         }    ];
 
     static getAttributeTypeMap() {
-        return AccessTokenCreateRequest.attributeTypeMap;
+        return AccessTokenItem.attributeTypeMap;
     }
 }
 

@@ -254,7 +254,7 @@ export class ChunkApi {
      * @param pageSize Number of items per page, 1-100 — or 1-25 when &#x60;body&#x3D;true&#x60;.
      * @param pageIndex Zero-based page index.
      */
-    public async list7 (body?: boolean, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: ChunkListResponse;  }> {
+    public async list8 (body?: boolean, pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: ChunkListResponse;  }> {
         const localVarPath = this.basePath + '/v1/chunk/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);

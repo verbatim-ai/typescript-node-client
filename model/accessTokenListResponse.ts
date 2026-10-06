@@ -11,60 +11,37 @@
  */
 
 import { RequestFile } from './models';
+import { AccessTokenItem } from './accessTokenItem';
 
-export class AccessTokenCreateRequest {
+/**
+* Paginated list of the access tokens of the caller\'s organization.
+*/
+export class AccessTokenListResponse {
     /**
-    * Token validity in seconds. Defaults to 3600 (1 hour); at least 10, and at most the platform ceiling (`app.access-token.max-ttl-seconds`, 86400 by default).
+    * Zero-based index of the returned page.
     */
-    'ttl'?: number;
+    'pageIndex'?: number;
     /**
-    * Optional label identifying the system that requested the token.
+    * Access tokens contained in this page, newest first, expired ones included.
     */
-    'issuer'?: string;
-    /**
-    * Optional email of the end-user the token is issued for.
-    */
-    'email'?: string;
-    /**
-    * Optional user identifier.
-    */
-    'userId'?: string;
-    /**
-    * Mandatory, non-empty list of permission scopes the token carries, each `DOMAIN:ACTION`. `GET /v1/auth/access-token/scopes` lists every valid entry.
-    */
-    'scope': Array<string>;
+    'items'?: Array<AccessTokenItem>;
 
     static discriminator: string | undefined = undefined;
 
     static attributeTypeMap: Array<{name: string, baseName: string, type: string}> = [
         {
-            "name": "ttl",
-            "baseName": "ttl",
+            "name": "pageIndex",
+            "baseName": "pageIndex",
             "type": "number"
         },
         {
-            "name": "issuer",
-            "baseName": "issuer",
-            "type": "string"
-        },
-        {
-            "name": "email",
-            "baseName": "email",
-            "type": "string"
-        },
-        {
-            "name": "userId",
-            "baseName": "userId",
-            "type": "string"
-        },
-        {
-            "name": "scope",
-            "baseName": "scope",
-            "type": "Array<string>"
+            "name": "items",
+            "baseName": "items",
+            "type": "Array<AccessTokenItem>"
         }    ];
 
     static getAttributeTypeMap() {
-        return AccessTokenCreateRequest.attributeTypeMap;
+        return AccessTokenListResponse.attributeTypeMap;
     }
 }
 

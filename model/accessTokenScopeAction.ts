@@ -12,59 +12,32 @@
 
 import { RequestFile } from './models';
 
-export class AccessTokenCreateRequest {
+export class AccessTokenScopeAction {
     /**
-    * Token validity in seconds. Defaults to 3600 (1 hour); at least 10, and at most the platform ceiling (`app.access-token.max-ttl-seconds`, 86400 by default).
+    * Action name, the `ACTION` part of a scope entry.
     */
-    'ttl'?: number;
+    'name'?: string;
     /**
-    * Optional label identifying the system that requested the token.
+    * HTTP methods the action opens on the domain\'s API.
     */
-    'issuer'?: string;
-    /**
-    * Optional email of the end-user the token is issued for.
-    */
-    'email'?: string;
-    /**
-    * Optional user identifier.
-    */
-    'userId'?: string;
-    /**
-    * Mandatory, non-empty list of permission scopes the token carries, each `DOMAIN:ACTION`. `GET /v1/auth/access-token/scopes` lists every valid entry.
-    */
-    'scope': Array<string>;
+    'methods'?: Array<string>;
 
     static discriminator: string | undefined = undefined;
 
     static attributeTypeMap: Array<{name: string, baseName: string, type: string}> = [
         {
-            "name": "ttl",
-            "baseName": "ttl",
-            "type": "number"
-        },
-        {
-            "name": "issuer",
-            "baseName": "issuer",
+            "name": "name",
+            "baseName": "name",
             "type": "string"
         },
         {
-            "name": "email",
-            "baseName": "email",
-            "type": "string"
-        },
-        {
-            "name": "userId",
-            "baseName": "userId",
-            "type": "string"
-        },
-        {
-            "name": "scope",
-            "baseName": "scope",
+            "name": "methods",
+            "baseName": "methods",
             "type": "Array<string>"
         }    ];
 
     static getAttributeTypeMap() {
-        return AccessTokenCreateRequest.attributeTypeMap;
+        return AccessTokenScopeAction.attributeTypeMap;
     }
 }
 

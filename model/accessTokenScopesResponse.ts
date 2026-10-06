@@ -11,60 +11,47 @@
  */
 
 import { RequestFile } from './models';
+import { AccessTokenScopeAction } from './accessTokenScopeAction';
+import { AccessTokenScopeDomain } from './accessTokenScopeDomain';
 
-export class AccessTokenCreateRequest {
+/**
+* Every scope an access token can be created with. A scope entry is `DOMAIN:ACTION`; any domain combines with any action.
+*/
+export class AccessTokenScopesResponse {
     /**
-    * Token validity in seconds. Defaults to 3600 (1 hour); at least 10, and at most the platform ceiling (`app.access-token.max-ttl-seconds`, 86400 by default).
+    * Domains a scope entry may name, each with the scopes it makes up.
     */
-    'ttl'?: number;
+    'domains'?: Array<AccessTokenScopeDomain>;
     /**
-    * Optional label identifying the system that requested the token.
+    * Actions a scope entry may ask for, each with the HTTP methods it opens.
     */
-    'issuer'?: string;
+    'actions'?: Array<AccessTokenScopeAction>;
     /**
-    * Optional email of the end-user the token is issued for.
+    * Every valid scope entry, as accepted in the `scope` of `POST /v1/auth/access-token/`.
     */
-    'email'?: string;
-    /**
-    * Optional user identifier.
-    */
-    'userId'?: string;
-    /**
-    * Mandatory, non-empty list of permission scopes the token carries, each `DOMAIN:ACTION`. `GET /v1/auth/access-token/scopes` lists every valid entry.
-    */
-    'scope': Array<string>;
+    'scopes'?: Array<string>;
 
     static discriminator: string | undefined = undefined;
 
     static attributeTypeMap: Array<{name: string, baseName: string, type: string}> = [
         {
-            "name": "ttl",
-            "baseName": "ttl",
-            "type": "number"
+            "name": "domains",
+            "baseName": "domains",
+            "type": "Array<AccessTokenScopeDomain>"
         },
         {
-            "name": "issuer",
-            "baseName": "issuer",
-            "type": "string"
+            "name": "actions",
+            "baseName": "actions",
+            "type": "Array<AccessTokenScopeAction>"
         },
         {
-            "name": "email",
-            "baseName": "email",
-            "type": "string"
-        },
-        {
-            "name": "userId",
-            "baseName": "userId",
-            "type": "string"
-        },
-        {
-            "name": "scope",
-            "baseName": "scope",
+            "name": "scopes",
+            "baseName": "scopes",
             "type": "Array<string>"
         }    ];
 
     static getAttributeTypeMap() {
-        return AccessTokenCreateRequest.attributeTypeMap;
+        return AccessTokenScopesResponse.attributeTypeMap;
     }
 }
 

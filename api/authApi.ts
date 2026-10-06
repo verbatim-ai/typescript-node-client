@@ -17,6 +17,8 @@ import http from 'http';
 /* tslint:disable:no-unused-locals */
 import { AccessTokenCreateRequest } from '../model/accessTokenCreateRequest';
 import { AccessTokenCreateResponse } from '../model/accessTokenCreateResponse';
+import { AccessTokenListResponse } from '../model/accessTokenListResponse';
+import { AccessTokenScopesResponse } from '../model/accessTokenScopesResponse';
 import { AckResponse } from '../model/ackResponse';
 import { WhoAmI } from '../model/whoAmI';
 
@@ -98,12 +100,12 @@ export class AuthApi {
     }
 
     /**
-     * Generate a new short-lived opaque access token for the caller\'s organization. The token can be used as the `X-Access-Token` header on `/v1/` API calls. Default TTL is 3600 seconds (1 hour).By default, token inherit privileges over all the domains. To limit access, defined a list of scope, where each must be compliant with the regex (config|auth|session|doc|chunk|corpus|post|usage|agent):(create|read|update|delete)
+     * Mint a short-lived opaque access token for the caller\'s organization. Send it as the `X-Access-Token` header on `/v1/` API calls.  **The `token` value is only ever returned here.** Store it or hand it over now: the listing shows only its first characters, and no call returns it again.  - `scope` is mandatory and non-empty — a list of `DOMAIN:ACTION` entries such as   `corpus:read`. `GET /v1/auth/access-token/scopes` lists every valid entry. - `ttl` is in seconds: 3600 (1 hour) when omitted, at least 10, and no more than the   ceiling the platform sets (`app.access-token.max-ttl-seconds`, 86400 — 24 hours — by   default). A longer `ttl` is refused with a 400, not shortened. - `issuer`, `email` and `userId` are free labels stored with the token and shown in the   listing; `userId` and `email` are also what `GET /v1/auth/whoami` answers for it.  Only reachable with a JWT: an access token cannot mint another. 
      * @summary Create an access token
      * @param accessTokenCreateRequest 
      */
     public async create3 (accessTokenCreateRequest: AccessTokenCreateRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AccessTokenCreateResponse;  }> {
-        const localVarPath = this.basePath + '/v1/auth/access-token';
+        const localVarPath = this.basePath + '/v1/auth/access-token/';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
         const produces = ['application/json'];
@@ -170,8 +172,83 @@ export class AuthApi {
         });
     }
     /**
-     * Permanently delete an access token. Any in-flight request using this token will fail immediately after revocation.
-     * @summary Revoke an access token
+     * List the access tokens of the caller\'s organization, newest first, with every attribute stored for them — **except the token value**, which is cut down to its first characters followed by `...`. The full value is only returned by the create call.  Expired tokens stay listed (compare `expiresAt` with the current time) until they are revoked. Use an item\'s `id` with `DELETE /v1/auth/access-token/id/{id}` to revoke it.  Only reachable with a JWT. 
+     * @summary List access tokens
+     * @param pageSize Number of items per page.
+     * @param pageIndex Zero-based page index.
+     */
+    public async list3 (pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AccessTokenListResponse;  }> {
+        const localVarPath = this.basePath + '/v1/auth/access-token/';
+        let localVarQueryParameters: any = {};
+        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
+        const produces = ['application/json'];
+        // give precedence to 'application/json'
+        if (produces.indexOf('application/json') >= 0) {
+            localVarHeaderParams.Accept = 'application/json';
+        } else {
+            localVarHeaderParams.Accept = produces.join(',');
+        }
+        let localVarFormParams: any = {};
+
+        if (pageSize !== undefined) {
+            localVarQueryParameters['pageSize'] = ObjectSerializer.serialize(pageSize, "number");
+        }
+
+        if (pageIndex !== undefined) {
+            localVarQueryParameters['pageIndex'] = ObjectSerializer.serialize(pageIndex, "number");
+        }
+
+        (<any>Object).assign(localVarHeaderParams, options.headers);
+
+        let localVarUseFormData = false;
+
+        let localVarRequestOptions: localVarRequest.Options = {
+            method: 'GET',
+            qs: localVarQueryParameters,
+            headers: localVarHeaderParams,
+            uri: localVarPath,
+            useQuerystring: this._useQuerystring,
+            json: true,
+        };
+
+        let authenticationPromise = Promise.resolve();
+        if (this.authentications.JWT.accessToken) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
+        }
+        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
+
+        let interceptorPromise = authenticationPromise;
+        for (const interceptor of this.interceptors) {
+            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
+        }
+
+        return interceptorPromise.then(() => {
+            if (Object.keys(localVarFormParams).length) {
+                if (localVarUseFormData) {
+                    (<any>localVarRequestOptions).formData = localVarFormParams;
+                } else {
+                    localVarRequestOptions.form = localVarFormParams;
+                }
+            }
+            return new Promise<{ response: http.IncomingMessage; body: AccessTokenListResponse;  }>((resolve, reject) => {
+                localVarRequest(localVarRequestOptions, (error, response, body) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
+                            body = ObjectSerializer.deserialize(body, "AccessTokenListResponse");
+                            resolve({ response: response, body: body });
+                        } else {
+                            reject(new HttpError(response, body, response.statusCode));
+                        }
+                    }
+                });
+            });
+        });
+    }
+    /**
+     * Permanently delete an access token, given its full value. Any request using this token fails immediately after revocation. An unknown value is acknowledged all the same. When you only have the listing, revoke by id instead. Only reachable with a JWT.
+     * @summary Revoke an access token by value
      * @param token access token to revoke.
      */
     public async revoke (token: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
@@ -232,6 +309,143 @@ export class AuthApi {
                     } else {
                         if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
                             body = ObjectSerializer.deserialize(body, "AckResponse");
+                            resolve({ response: response, body: body });
+                        } else {
+                            reject(new HttpError(response, body, response.statusCode));
+                        }
+                    }
+                });
+            });
+        });
+    }
+    /**
+     * Permanently delete one of the organization\'s access tokens, identified by the `id` the listing returns. Revocation is immediate: the next request carrying the token is refused.  An id that names no token of the caller\'s organization — unknown, already revoked, or another organization\'s — is a 404.  Only reachable with a JWT. 
+     * @summary Revoke an access token by id
+     * @param id Id of the access token to revoke, as listed.
+     */
+    public async revokeById (id: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AckResponse;  }> {
+        const localVarPath = this.basePath + '/v1/auth/access-token/id/{id}'
+            .replace('{id}', encodeURIComponent(String(id)));
+        let localVarQueryParameters: any = {};
+        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
+        const produces = ['application/json'];
+        // give precedence to 'application/json'
+        if (produces.indexOf('application/json') >= 0) {
+            localVarHeaderParams.Accept = 'application/json';
+        } else {
+            localVarHeaderParams.Accept = produces.join(',');
+        }
+        let localVarFormParams: any = {};
+
+        // verify required parameter 'id' is not null or undefined
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling revokeById.');
+        }
+
+        (<any>Object).assign(localVarHeaderParams, options.headers);
+
+        let localVarUseFormData = false;
+
+        let localVarRequestOptions: localVarRequest.Options = {
+            method: 'DELETE',
+            qs: localVarQueryParameters,
+            headers: localVarHeaderParams,
+            uri: localVarPath,
+            useQuerystring: this._useQuerystring,
+            json: true,
+        };
+
+        let authenticationPromise = Promise.resolve();
+        if (this.authentications.JWT.accessToken) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
+        }
+        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
+
+        let interceptorPromise = authenticationPromise;
+        for (const interceptor of this.interceptors) {
+            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
+        }
+
+        return interceptorPromise.then(() => {
+            if (Object.keys(localVarFormParams).length) {
+                if (localVarUseFormData) {
+                    (<any>localVarRequestOptions).formData = localVarFormParams;
+                } else {
+                    localVarRequestOptions.form = localVarFormParams;
+                }
+            }
+            return new Promise<{ response: http.IncomingMessage; body: AckResponse;  }>((resolve, reject) => {
+                localVarRequest(localVarRequestOptions, (error, response, body) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
+                            body = ObjectSerializer.deserialize(body, "AckResponse");
+                            resolve({ response: response, body: body });
+                        } else {
+                            reject(new HttpError(response, body, response.statusCode));
+                        }
+                    }
+                });
+            });
+        });
+    }
+    /**
+     * Every scope an access token can be created with — the values accepted in the `scope` of `POST /v1/auth/access-token/`. Use it to build a scope picker rather than hard-coding the list.  A scope entry is `DOMAIN:ACTION`, and every domain combines with every action:  - `domains` — each domain with the API path it covers, what it gives access to, and its   scope entries, ready to group in a UI; - `actions` — each action with the HTTP methods it opens (`read` is `GET`, so running a   RAG query, `GET /v1/post/q`, needs `post:read`); - `scopes` — the flat list of every valid entry.  The catalog is the same for every organization and every caller. 
+     * @summary List the available scopes
+     */
+    public async scopes (options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: AccessTokenScopesResponse;  }> {
+        const localVarPath = this.basePath + '/v1/auth/access-token/scopes';
+        let localVarQueryParameters: any = {};
+        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
+        const produces = ['application/json'];
+        // give precedence to 'application/json'
+        if (produces.indexOf('application/json') >= 0) {
+            localVarHeaderParams.Accept = 'application/json';
+        } else {
+            localVarHeaderParams.Accept = produces.join(',');
+        }
+        let localVarFormParams: any = {};
+
+        (<any>Object).assign(localVarHeaderParams, options.headers);
+
+        let localVarUseFormData = false;
+
+        let localVarRequestOptions: localVarRequest.Options = {
+            method: 'GET',
+            qs: localVarQueryParameters,
+            headers: localVarHeaderParams,
+            uri: localVarPath,
+            useQuerystring: this._useQuerystring,
+            json: true,
+        };
+
+        let authenticationPromise = Promise.resolve();
+        if (this.authentications.JWT.accessToken) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
+        }
+        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
+
+        let interceptorPromise = authenticationPromise;
+        for (const interceptor of this.interceptors) {
+            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
+        }
+
+        return interceptorPromise.then(() => {
+            if (Object.keys(localVarFormParams).length) {
+                if (localVarUseFormData) {
+                    (<any>localVarRequestOptions).formData = localVarFormParams;
+                } else {
+                    localVarRequestOptions.form = localVarFormParams;
+                }
+            }
+            return new Promise<{ response: http.IncomingMessage; body: AccessTokenScopesResponse;  }>((resolve, reject) => {
+                localVarRequest(localVarRequestOptions, (error, response, body) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
+                            body = ObjectSerializer.deserialize(body, "AccessTokenScopesResponse");
                             resolve({ response: response, body: body });
                         } else {
                             reject(new HttpError(response, body, response.statusCode));
