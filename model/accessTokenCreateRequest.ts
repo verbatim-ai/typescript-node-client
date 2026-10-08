@@ -22,14 +22,6 @@ export class AccessTokenCreateRequest {
     */
     'issuer'?: string;
     /**
-    * Optional email of the end-user the token is issued for.
-    */
-    'email'?: string;
-    /**
-    * Optional user identifier.
-    */
-    'userId'?: string;
-    /**
     * Mandatory, non-empty list of permission scopes the token carries, each `DOMAIN:ACTION`. `GET /v1/auth/access-token/scopes` lists every valid entry.
     */
     'scope': Array<string>;
@@ -45,16 +37,6 @@ export class AccessTokenCreateRequest {
         {
             "name": "issuer",
             "baseName": "issuer",
-            "type": "string"
-        },
-        {
-            "name": "email",
-            "baseName": "email",
-            "type": "string"
-        },
-        {
-            "name": "userId",
-            "baseName": "userId",
             "type": "string"
         },
         {
