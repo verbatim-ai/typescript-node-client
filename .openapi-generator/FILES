@@ -41,6 +41,7 @@ model/documentDownloadUrl.ts
 model/documentInit.ts
 model/documentInitRequest.ts
 model/documentListResponse.ts
+model/documentMarkdownUrl.ts
 model/documentPreviewUrl.ts
 model/documentPreviewUrls.ts
 model/documentSearchResponse.ts

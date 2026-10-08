@@ -29,6 +29,7 @@ export * from './documentDownloadUrl';
 export * from './documentInit';
 export * from './documentInitRequest';
 export * from './documentListResponse';
+export * from './documentMarkdownUrl';
 export * from './documentPreviewUrl';
 export * from './documentPreviewUrls';
 export * from './documentSearchResponse';
@@ -96,6 +97,7 @@ import { DocumentDownloadUrl } from './documentDownloadUrl';
 import { DocumentInit } from './documentInit';
 import { DocumentInitRequest } from './documentInitRequest';
 import { DocumentListResponse } from './documentListResponse';
+import { DocumentMarkdownUrl } from './documentMarkdownUrl';
 import { DocumentPreviewUrl } from './documentPreviewUrl';
 import { DocumentPreviewUrls } from './documentPreviewUrls';
 import { DocumentSearchResponse } from './documentSearchResponse';
@@ -175,6 +177,7 @@ let typeMap: {[index: string]: any} = {
     "DocumentInit": DocumentInit,
     "DocumentInitRequest": DocumentInitRequest,
     "DocumentListResponse": DocumentListResponse,
+    "DocumentMarkdownUrl": DocumentMarkdownUrl,
     "DocumentPreviewUrl": DocumentPreviewUrl,
     "DocumentPreviewUrls": DocumentPreviewUrls,
     "DocumentSearchResponse": DocumentSearchResponse,

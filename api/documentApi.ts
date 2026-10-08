@@ -22,6 +22,7 @@ import { DocumentDownloadUrl } from '../model/documentDownloadUrl';
 import { DocumentInit } from '../model/documentInit';
 import { DocumentInitRequest } from '../model/documentInitRequest';
 import { DocumentListResponse } from '../model/documentListResponse';
+import { DocumentMarkdownUrl } from '../model/documentMarkdownUrl';
 import { DocumentPreviewUrls } from '../model/documentPreviewUrls';
 import { DocumentSearchResponse } from '../model/documentSearchResponse';
 import { DocumentStatus } from '../model/documentStatus';
@@ -792,6 +793,81 @@ export class DocumentApi {
                     } else {
                         if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
                             body = ObjectSerializer.deserialize(body, "string");
+                            resolve({ response: response, body: body });
+                        } else {
+                            reject(new HttpError(response, body, response.statusCode));
+                        }
+                    }
+                });
+            });
+        });
+    }
+    /**
+     * Return a time-limited presigned URL the client can use to GET the Markdown conversion of the document directly from the storage backend (S3) — no content flows through this server. It is the text ingestion extracted from the file, before it was split into chunks: what to read when you want the whole document as text.  The URL needs no token: whoever holds it can read the file until `expiresAt`. Do not log it or hand it further than needed. Ask again for a fresh one once it has expired. `timestamp` is when it was issued.  The conversion is produced during ingestion. No existence check is made here, so the URL answers `404` when fetched until ingestion has written it — it is there once the document is `READY`. A document still `AWAITING_UPLOAD` has nothing to convert and is answered `409`.  Scope: `doc:read`. 
+     * @summary Get a presigned URL to the Markdown conversion
+     * @param id ID of the document.
+     */
+    public async markdownUrl (id: string, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentMarkdownUrl;  }> {
+        const localVarPath = this.basePath + '/v1/doc/{id}/md'
+            .replace('{id}', encodeURIComponent(String(id)));
+        let localVarQueryParameters: any = {};
+        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
+        const produces = ['application/json'];
+        // give precedence to 'application/json'
+        if (produces.indexOf('application/json') >= 0) {
+            localVarHeaderParams.Accept = 'application/json';
+        } else {
+            localVarHeaderParams.Accept = produces.join(',');
+        }
+        let localVarFormParams: any = {};
+
+        // verify required parameter 'id' is not null or undefined
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling markdownUrl.');
+        }
+
+        (<any>Object).assign(localVarHeaderParams, options.headers);
+
+        let localVarUseFormData = false;
+
+        let localVarRequestOptions: localVarRequest.Options = {
+            method: 'GET',
+            qs: localVarQueryParameters,
+            headers: localVarHeaderParams,
+            uri: localVarPath,
+            useQuerystring: this._useQuerystring,
+            json: true,
+        };
+
+        let authenticationPromise = Promise.resolve();
+        if (this.authentications.JWT.accessToken) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
+        }
+        if (this.authentications.AccessToken.apiKey) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.AccessToken.applyToRequest(localVarRequestOptions));
+        }
+        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
+
+        let interceptorPromise = authenticationPromise;
+        for (const interceptor of this.interceptors) {
+            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
+        }
+
+        return interceptorPromise.then(() => {
+            if (Object.keys(localVarFormParams).length) {
+                if (localVarUseFormData) {
+                    (<any>localVarRequestOptions).formData = localVarFormParams;
+                } else {
+                    localVarRequestOptions.form = localVarFormParams;
+                }
+            }
+            return new Promise<{ response: http.IncomingMessage; body: DocumentMarkdownUrl;  }>((resolve, reject) => {
+                localVarRequest(localVarRequestOptions, (error, response, body) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
+                            body = ObjectSerializer.deserialize(body, "DocumentMarkdownUrl");
                             resolve({ response: response, body: body });
                         } else {
                             reject(new HttpError(response, body, response.statusCode));
