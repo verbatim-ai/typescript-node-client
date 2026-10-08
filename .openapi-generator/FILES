@@ -46,6 +46,7 @@ model/documentPreviewUrls.ts
 model/documentSearchResponse.ts
 model/documentStatus.ts
 model/documentUpdateRequest.ts
+model/documentUrlRequest.ts
 model/model.ts
 model/modelError.ts
 model/modelListResponse.ts

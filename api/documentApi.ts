@@ -26,6 +26,7 @@ import { DocumentPreviewUrls } from '../model/documentPreviewUrls';
 import { DocumentSearchResponse } from '../model/documentSearchResponse';
 import { DocumentStatus } from '../model/documentStatus';
 import { DocumentUpdateRequest } from '../model/documentUpdateRequest';
+import { DocumentUrlRequest } from '../model/documentUrlRequest';
 
 import { ObjectSerializer, Authentication, VoidAuth, Interceptor } from '../model/models';
 import { HttpBasicAuth, HttpBearerAuth, ApiKeyAuth, OAuth } from '../model/models';
@@ -485,6 +486,81 @@ export class DocumentApi {
         });
     }
     /**
+     * Print a web page to PDF and add it to a corpus — the `init` → PUT → `commit` flow in one call, with the server producing the file. The page is loaded in a headless Chromium, as a browser would show it: scripts run, so pages rendered client-side import too.  **The document is named by the page.** `filename` is the page\'s `<title>` with a `.pdf` extension (its address when the page has none), `lang` comes from its `<html lang>` (English when it declares none), `provider` is `web`, and `metadata.url` keeps the URL it was imported from.  **The response is the committed document**, already `PENDING`: ingestion runs asynchronously, exactly as after `commit` — poll `GET /v1/doc/{id}/status`. The call itself is synchronous up to that point and takes as long as the page takes to load and print, usually a few seconds.  **The URL must be `https`**, and credentials do not go in it: send them in `headers`.  **The page is checked before it is printed**: one `GET`, redirects followed (at most 20), must end on an `https` URL answering HTTP `200` with HTML. Anything else is refused without printing — a dead link or an error status is a `400`, a URL answering something other than HTML (a PDF, an image, JSON) is a `415`.  **`headers` reach the page\'s own origin only** — same scheme, host and port as `url`. Chromium does not send them to the stylesheets, scripts and images the page loads from elsewhere, nor to another origin a redirect leads to. They are used for this call and never stored.  A page that passes the check but still fails to print is a `400` saying why. A PDF above the per-document size limit is a `409`.  Scope: `doc:create`. 
+     * @summary Import a web page
+     * @param documentUrlRequest 
+     */
+    public async importUrl (documentUrlRequest: DocumentUrlRequest, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: Document;  }> {
+        const localVarPath = this.basePath + '/v1/doc/url';
+        let localVarQueryParameters: any = {};
+        let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
+        const produces = ['application/json'];
+        // give precedence to 'application/json'
+        if (produces.indexOf('application/json') >= 0) {
+            localVarHeaderParams.Accept = 'application/json';
+        } else {
+            localVarHeaderParams.Accept = produces.join(',');
+        }
+        let localVarFormParams: any = {};
+
+        // verify required parameter 'documentUrlRequest' is not null or undefined
+        if (documentUrlRequest === null || documentUrlRequest === undefined) {
+            throw new Error('Required parameter documentUrlRequest was null or undefined when calling importUrl.');
+        }
+
+        (<any>Object).assign(localVarHeaderParams, options.headers);
+
+        let localVarUseFormData = false;
+
+        let localVarRequestOptions: localVarRequest.Options = {
+            method: 'POST',
+            qs: localVarQueryParameters,
+            headers: localVarHeaderParams,
+            uri: localVarPath,
+            useQuerystring: this._useQuerystring,
+            json: true,
+            body: ObjectSerializer.serialize(documentUrlRequest, "DocumentUrlRequest")
+        };
+
+        let authenticationPromise = Promise.resolve();
+        if (this.authentications.JWT.accessToken) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.JWT.applyToRequest(localVarRequestOptions));
+        }
+        if (this.authentications.AccessToken.apiKey) {
+            authenticationPromise = authenticationPromise.then(() => this.authentications.AccessToken.applyToRequest(localVarRequestOptions));
+        }
+        authenticationPromise = authenticationPromise.then(() => this.authentications.default.applyToRequest(localVarRequestOptions));
+
+        let interceptorPromise = authenticationPromise;
+        for (const interceptor of this.interceptors) {
+            interceptorPromise = interceptorPromise.then(() => interceptor(localVarRequestOptions));
+        }
+
+        return interceptorPromise.then(() => {
+            if (Object.keys(localVarFormParams).length) {
+                if (localVarUseFormData) {
+                    (<any>localVarRequestOptions).formData = localVarFormParams;
+                } else {
+                    localVarRequestOptions.form = localVarFormParams;
+                }
+            }
+            return new Promise<{ response: http.IncomingMessage; body: Document;  }>((resolve, reject) => {
+                localVarRequest(localVarRequestOptions, (error, response, body) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        if (response.statusCode && response.statusCode >= 200 && response.statusCode <= 299) {
+                            body = ObjectSerializer.deserialize(body, "Document");
+                            resolve({ response: response, body: body });
+                        } else {
+                            reject(new HttpError(response, body, response.statusCode));
+                        }
+                    }
+                });
+            });
+        });
+    }
+    /**
      * Step 1 of the upload flow. Validates inputs, creates a document in `AWAITING_UPLOAD` status, and returns a single-use presigned PUT URL the client must use to push the file bytes directly to S3 — no content flows through this server.  The returned `uploadUrl` is bound to the requested `contentType`: the client MUST send a matching `Content-Type` header in the PUT request, or S3 will reject it.  After the PUT succeeds, call `POST /v1/doc/{id}/commit` to trigger ingestion.  Accepted content types are listed by `GET /v1/doc/accept`.  Two optional fields shape what happens later: `tags` classifies the document so `GET /v1/doc/?tags=…` can find it, and `chunk` overrides how ingestion splits it into embeddable pieces. `chunk` accepts the Unstructured chunking options (`strategy`, `max_characters`, `overlap`, …) — see the request schema for the full key reference, and the *Chunking* examples below for the three shapes that cover most documents. Omit `chunk` and the platform default applies (`by_title`, `max_characters: 10000`, `combine_text_under_n_chars: 1000`). 
      * @summary Initialize a direct-to-storage upload
      * @param documentInitRequest 
@@ -886,12 +962,14 @@ export class DocumentApi {
         });
     }
     /**
-     * Find documents in a corpus by filename, tags, lifecycle status, content type, language, provider or ingestion date, sorted the way you need them.  Every filter is optional and they **narrow together**: a request carrying none of them returns the whole corpus, one carrying several returns only the documents matching all of them. For a plain corpus listing, `GET /v1/doc/` is the simpler endpoint — this one is for finding a document you cannot scroll to.  ### Filename — `q`  Case-insensitive, and **anchored at the start** of the filename: `q=annual` finds `Annual-Report-2025.pdf`, `q=report` does not. Put a `*` anywhere to match elsewhere — `q=*report` searches any position, `q=*report*` a substring, `q=2025-*.pdf` a name that starts with `2025-` and ends in `.pdf`.  The default is anchored because that is the shape the index can serve: an anchored pattern is a range scan, a leading `*` is a filter over the corpus. Both are correct, the first is cheaper — prefer it when your client knows how the filename begins.  `%` and `_` carry no special meaning here: they match themselves.  ### Tags — `tags`, `tagsMatch`  Repeat the parameter for several tags (`tags=legal&tags=2026`). By default (`tagsMatch=ANY`) a document matches when it carries **at least one** of them, which is what `GET /v1/doc/?tags=…` does; `tagsMatch=ALL` requires **every** one of them, extra tags on the document being fine.  ### Status — `status`  Repeatable as well, and any of the listed states matches: `status=PENDING&status=FAILED` returns everything that is not ingested yet or needs attention.  ### Content type — `contentType`  Repeatable too, and any of the listed types matches: `contentType=application/pdf&contentType=text/plain`. Values are taken as they come — nothing is checked against `GET /v1/doc/accept`, so a type the platform does not ingest is not an error, it simply matches no document.  ### Size — `minSize`, `maxSize`  A range on the stored size in bytes, **inclusive at both ends** and each bound independent: `minSize=1048576` alone is \"at least 1 MB\", `maxSize` alone \"at most\", and `minSize=maxSize=N` the documents of exactly that many bytes. `minSize` above `maxSize` is refused with `400` rather than answering an empty page.  A document only has a size once its upload is committed, so setting either bound also excludes everything still `AWAITING_UPLOAD` — the same documents `sort=SIZE` pushes to the end of the result.  ### Dates — `createdAfter`, `createdBefore`  A half-open window on the ingestion date: `createdAfter` is inclusive, `createdBefore` exclusive, so consecutive windows tile the timeline without returning a document twice. Supplying `createdAfter` at or after `createdBefore` is refused with `400` rather than answering an empty page.  ### Ordering and paging  `sort` defaults to `CREATED_AT` and `order` to `DESC` — newest first. The ordering is closed by the document id, so walking `pageIndex` never shows the same document twice nor skips one, even when many documents share a sort key. Documents whose `size` is not known yet sort last whatever the direction.  `total` counts every match across all pages, not just the ones returned here.  ### Examples  * `?corpusId=…&q=annual-report` — every document whose name starts with it * `?corpusId=…&q=*report*` — anywhere in the name, at the cost of a scan * `?corpusId=…&q=2025-*.pdf` — starts with `2025-`, ends in `.pdf` * `?corpusId=…&status=FAILED&status=PENDING&sort=UPDATED_AT&order=ASC` — the   ingestion backlog, longest-waiting first * `?corpusId=…&tags=legal&tags=2026&tagsMatch=ALL` — documents carrying both tags * `?corpusId=…&contentType=application/pdf&createdAfter=2026-07-01T00:00:00Z&createdBefore=2026-10-01T00:00:00Z&sort=SIZE&order=DESC`   — last quarter\'s PDFs, biggest first * `?corpusId=…&contentType=application/pdf&contentType=text/plain&minSize=1048576`   — PDFs and plain text over 1 MB * `?corpusId=…&maxSize=0` — documents that were uploaded empty 
+     * Find documents in a corpus by filename, tags, metadata, lifecycle status, content type, language, provider or ingestion date, sorted the way you need them.  Every filter is optional and they **narrow together**: a request carrying none of them returns the whole corpus, one carrying several returns only the documents matching all of them. For a plain corpus listing, `GET /v1/doc/` is the simpler endpoint — this one is for finding a document you cannot scroll to.  ### Filename — `q`  Case-insensitive, and **anchored at the start** of the filename: `q=annual` finds `Annual-Report-2025.pdf`, `q=report` does not. Put a `*` anywhere to match elsewhere — `q=*report` searches any position, `q=*report*` a substring, `q=2025-*.pdf` a name that starts with `2025-` and ends in `.pdf`.  The default is anchored because that is the shape the index can serve: an anchored pattern is a range scan, a leading `*` is a filter over the corpus. Both are correct, the first is cheaper — prefer it when your client knows how the filename begins.  `%` and `_` carry no special meaning here: they match themselves.  ### Tags — `tags`, `tagsMatch`  Repeat the parameter for several tags (`tags=legal&tags=2026`). By default (`tagsMatch=ANY`) a document matches when it carries **at least one** of them, which is what `GET /v1/doc/?tags=…` does; `tagsMatch=ALL` requires **every** one of them, extra tags on the document being fine.  ### Metadata — `meta`, `metaMatch`  Each `meta` is one `key:value` condition on the document\'s `metadata`, split at the **first** `:` — so a value may contain colons (`meta=source:https://…`) but a key may not. Repeat it for several conditions; by default (`metaMatch=ALL`) a document must satisfy **every** one of them, with `metaMatch=ANY` **at least one**.  Keys are top-level and exact (case-sensitive). Values compare as text, exactly: `meta=year:2026` matches `\"year\": \"2026\"` and `\"year\": 2026` alike, and `meta=archived:true` a boolean `true`. A document without the key never matches its condition. At most 16 conditions, keys up to 128 characters, values up to 1024.  ### Status — `status`  Repeatable as well, and any of the listed states matches: `status=PENDING&status=FAILED` returns everything that is not ingested yet or needs attention.  ### Content type — `contentType`  Repeatable too, and any of the listed types matches: `contentType=application/pdf&contentType=text/plain`. Values are taken as they come — nothing is checked against `GET /v1/doc/accept`, so a type the platform does not ingest is not an error, it simply matches no document.  ### Size — `minSize`, `maxSize`  A range on the stored size in bytes, **inclusive at both ends** and each bound independent: `minSize=1048576` alone is \"at least 1 MB\", `maxSize` alone \"at most\", and `minSize=maxSize=N` the documents of exactly that many bytes. `minSize` above `maxSize` is refused with `400` rather than answering an empty page.  A document only has a size once its upload is committed, so setting either bound also excludes everything still `AWAITING_UPLOAD` — the same documents `sort=SIZE` pushes to the end of the result.  ### Dates — `createdAfter`, `createdBefore`  A half-open window on the ingestion date: `createdAfter` is inclusive, `createdBefore` exclusive, so consecutive windows tile the timeline without returning a document twice. Supplying `createdAfter` at or after `createdBefore` is refused with `400` rather than answering an empty page.  ### Ordering and paging  `sort` defaults to `CREATED_AT` and `order` to `DESC` — newest first. The ordering is closed by the document id, so walking `pageIndex` never shows the same document twice nor skips one, even when many documents share a sort key. Documents whose `size` is not known yet sort last whatever the direction.  `total` counts every match across all pages, not just the ones returned here.  ### Examples  * `?corpusId=…&q=annual-report` — every document whose name starts with it * `?corpusId=…&q=*report*` — anywhere in the name, at the cost of a scan * `?corpusId=…&q=2025-*.pdf` — starts with `2025-`, ends in `.pdf` * `?corpusId=…&status=FAILED&status=PENDING&sort=UPDATED_AT&order=ASC` — the   ingestion backlog, longest-waiting first * `?corpusId=…&tags=legal&tags=2026&tagsMatch=ALL` — documents carrying both tags * `?corpusId=…&meta=team:legal&meta=year:2026` — metadata `team` is `legal` **and**   `year` is `2026` * `?corpusId=…&meta=team:legal&meta=team:hr&metaMatch=ANY` — either team * `?corpusId=…&contentType=application/pdf&createdAfter=2026-07-01T00:00:00Z&createdBefore=2026-10-01T00:00:00Z&sort=SIZE&order=DESC`   — last quarter\'s PDFs, biggest first * `?corpusId=…&contentType=application/pdf&contentType=text/plain&minSize=1048576`   — PDFs and plain text over 1 MB * `?corpusId=…&maxSize=0` — documents that were uploaded empty 
      * @summary Search documents
      * @param corpusId ID of the corpus to search.
      * @param q Filename pattern, case-insensitive and anchored at the start of the name: &#x60;annual&#x60; matches &#x60;Annual-Report-2025.pdf&#x60;, &#x60;report&#x60; does not. Add &#x60;*&#x60; anywhere to match elsewhere (&#x60;*report*&#x60;), at the cost of a scan over the corpus. &#x60;%&#x60; and &#x60;_&#x60; match themselves. Blank or omitted, filenames are not filtered.
      * @param tags Tag filter. Repeat for multiple values: &#x60;tags&#x3D;legal&amp;tags&#x3D;2026&#x60;. When omitted, tags are ignored.
      * @param tagsMatch How &#x60;tags&#x60; combine: &#x60;ANY&#x60; keeps documents carrying at least one of them, &#x60;ALL&#x60; only those carrying every one. Ignored without &#x60;tags&#x60;.
+     * @param meta Metadata condition &#x60;key:value&#x60;, split at the first &#x60;:&#x60;; the value compares as text, so &#x60;year:2026&#x60; matches a string or a number. Repeat for several: &#x60;meta&#x3D;team:legal&amp;meta&#x3D;year:2026&#x60;. When omitted, metadata is not filtered.
+     * @param metaMatch How &#x60;meta&#x60; conditions combine: &#x60;ALL&#x60; (default) keeps documents satisfying every one, &#x60;ANY&#x60; those satisfying at least one. Ignored without &#x60;meta&#x60;.
      * @param status Lifecycle filter. Repeat for several: &#x60;status&#x3D;PENDING&amp;status&#x3D;FAILED&#x60; matches either. When omitted, documents of all statuses are returned.
      * @param contentType MIME type filter. Repeat for several: &#x60;contentType&#x3D;application/pdf&amp;contentType&#x3D;text/plain&#x60; matches either. Values are not checked against &#x60;GET /v1/doc/accept&#x60; — an unsupported one simply matches nothing. When omitted, content types are not filtered.
      * @param lang Exact ISO-639 language code of the document.
@@ -905,7 +983,7 @@ export class DocumentApi {
      * @param pageSize Number of items per page, 1-100.
      * @param pageIndex Zero-based page index.
      */
-    public async search2 (corpusId: string, q?: string, tags?: Array<string>, tagsMatch?: 'ANY' | 'ALL', status?: Array<'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'>, contentType?: Array<string>, lang?: string, provider?: string, createdAfter?: Date, createdBefore?: Date, minSize?: number, maxSize?: number, sort?: 'CREATED_AT' | 'UPDATED_AT' | 'FILENAME' | 'SIZE', order?: 'ASC' | 'DESC', pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentSearchResponse;  }> {
+    public async search2 (corpusId: string, q?: string, tags?: Array<string>, tagsMatch?: 'ANY' | 'ALL', meta?: Array<string>, metaMatch?: 'ALL' | 'ANY', status?: Array<'AWAITING_UPLOAD' | 'PENDING' | 'PROCESSING' | 'READY' | 'FAILED'>, contentType?: Array<string>, lang?: string, provider?: string, createdAfter?: Date, createdBefore?: Date, minSize?: number, maxSize?: number, sort?: 'CREATED_AT' | 'UPDATED_AT' | 'FILENAME' | 'SIZE', order?: 'ASC' | 'DESC', pageSize?: number, pageIndex?: number, options: {headers: {[name: string]: string}} = {headers: {}}) : Promise<{ response: http.IncomingMessage; body: DocumentSearchResponse;  }> {
         const localVarPath = this.basePath + '/v1/doc/q';
         let localVarQueryParameters: any = {};
         let localVarHeaderParams: any = (<any>Object).assign({}, this._defaultHeaders);
@@ -937,6 +1015,14 @@ export class DocumentApi {
 
         if (tagsMatch !== undefined) {
             localVarQueryParameters['tagsMatch'] = ObjectSerializer.serialize(tagsMatch, "'ANY' | 'ALL'");
+        }
+
+        if (meta !== undefined) {
+            localVarQueryParameters['meta'] = ObjectSerializer.serialize(meta, "Array<string>");
+        }
+
+        if (metaMatch !== undefined) {
+            localVarQueryParameters['metaMatch'] = ObjectSerializer.serialize(metaMatch, "'ALL' | 'ANY'");
         }
 
         if (status !== undefined) {
